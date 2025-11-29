@@ -8,11 +8,12 @@ env/
 venv/
 ENV/
 .venv
-dinbuddy/
 
 # Environment
 .env
 .env.local
+.env.production
+.env.staging
 
 # Database
 *.db
@@ -30,13 +31,13 @@ dinbuddy/
 .pytest_cache/
 .coverage
 htmlcov/
+*.cover
+
+# Alembic
+alembic/versions/*.py
+!alembic/versions/.gitkeep
 
 # Logs
 *.log
+logs/
 
-# Docker
-docker-compose.override.yml
-
-# OS
-.DS_Store
-Thumbs.db
