@@ -21,10 +21,3 @@ class TimestampMixin:
 class IDMixin:
     """Mixin to add auto-incrementing ID primary key"""
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-
-
-# Import all models here so Alembic can detect them
-# Example:
-# from app.models.user import User
-# from app.models.restaurant import Restaurant
-

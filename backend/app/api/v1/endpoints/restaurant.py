@@ -10,7 +10,7 @@ router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 # ------ Endpoints ------ #
 @router.post("/create", response_model=RestaurantRead)
 def create_restaurant(restaurant: RestaurantCreate, db: Session = Depends(get_db)):
-    db_restaurant = RestaurantService().create(db, restaurant.name)
+    db_restaurant = RestaurantService().create(db, restaurant)
     return db_restaurant
 
 @router.get("/list", response_model=List[RestaurantRead])
