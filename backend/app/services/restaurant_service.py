@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.restaurant import Restaurant
 from app.schemas.restaurant import RestaurantCreate
 
@@ -14,7 +14,11 @@ class RestaurantService:
         return restaurant
 
     def get_by_id(self, db: Session, restaurant_id: int) -> Restaurant:
-        return db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+        return db.query(Restaurant)\
+            .options(joinedload(Restaurant.categories).joinedload('menu_items'))\
+            .filter(Restaurant.id == restaurant_id).first()
 
     def get_all(self, db: Session):
-        return db.query(Restaurant).all()
+        return db.query(Restaurant)\
+            .options(joinedload(Restaurant.categories).joinedload('menu_items'))\
+            .all()

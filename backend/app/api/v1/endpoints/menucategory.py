@@ -29,3 +29,9 @@ def get_menu_category(menu_category_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Menu category not found")
     return db_category
 
+
+@router.get("/restaurant/{restaurant_id}", response_model=List[MenuCategoryRead])
+def get_menu_categories_by_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
+    """Get all menu categories for a specific restaurant"""
+    categories = MenuCategoryService().get_by_restaurant_id(db, restaurant_id)
+    return categories

@@ -22,3 +22,7 @@ class MenuCategoryService:
 
     def get_all(self, db: Session):
         return db.query(MenuCategory).all()
+    
+    def get_by_restaurant_id(self, db: Session, restaurant_id: int):
+        """Get all categories for a specific restaurant"""
+        return db.query(MenuCategory).filter(MenuCategory.restaurant_id == restaurant_id).all()
