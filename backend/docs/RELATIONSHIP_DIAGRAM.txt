@@ -1,0 +1,135 @@
+================================================================================
+                      RELATIONSHIP DIAGRAM - DineBuddy
+================================================================================
+
+                        ┌─────────────────────┐
+                        │    RESTAURANT       │
+                        │                     │
+                        │  • id (PK)          │
+                        │  • name (UK)        │
+                        │  • created_at       │
+                        │  • updated_at       │
+                        │                     │
+                        │  Relationship:      │
+                        │  └─ categories      │
+                        └──────────┬──────────┘
+                                   │
+                        ┌──────────┴──────────┐
+                        │    ONE-TO-MANY      │
+                        │  (1 Restaurant)     │
+                        │    has many         │
+                        │  (N Categories)     │
+                        │                     │
+                        │  Cascade Delete:    │
+                        │  ✅ Enabled         │
+                        └──────────┬──────────┘
+                                   │
+                        ┌──────────▼──────────┐
+                        │   MENU_CATEGORY     │
+                        │                     │
+                        │  • id (PK)          │
+                        │  • name             │
+                        │  • restaurant_id FK │
+                        │  • created_at       │
+                        │  • updated_at       │
+                        │                     │
+                        │  Relationships:     │
+                        │  ├─ restaurant      │
+                        │  └─ menu_items      │
+                        └──────────┬──────────┘
+                                   │
+                        ┌──────────┴──────────┐
+                        │    ONE-TO-MANY      │
+                        │  (1 Category)       │
+                        │    has many         │
+                        │  (N Items)          │
+                        │                     │
+                        │  Cascade Delete:    │
+                        │  ✅ Enabled         │
+                        └──────────┬──────────┘
+                                   │
+                        ┌──────────▼──────────┐
+                        │     MENU_ITEM       │
+                        │                     │
+                        │  • id (PK)          │
+                        │  • name             │
+                        │  • description      │
+                        │  • price            │
+                        │  • menu_category_id │
+                        │    (FK)             │
+                        │  • created_at       │
+                        │  • updated_at       │
+                        │                     │
+                        │  Relationship:      │
+                        │  └─ menu_category   │
+                        └─────────────────────┘
+
+================================================================================
+                           RELATIONSHIP SUMMARY
+================================================================================
+
+Level 1: Restaurant
+    └─→ Has many: MenuCategory
+        └─→ Has many: MenuItem
+
+Total Relationships: 2
+  • Restaurant → MenuCategory (1:N)
+  • MenuCategory → MenuItem (1:N)
+
+Cascade Delete Chain:
+  Restaurant → MenuCategory → MenuItem
+
+================================================================================
+                        RELATIONSHIP CARDINALITY
+================================================================================
+
+Restaurant (1) ────────< (N) MenuCategory
+    One restaurant can have zero or more menu categories
+    Each menu category belongs to exactly one restaurant
+
+MenuCategory (1) ────────< (N) MenuItem
+    One menu category can have zero or more menu items
+    Each menu item belongs to exactly one menu category
+
+================================================================================
+                           FOREIGN KEY DETAILS
+================================================================================
+
+Table: menu_categories
+  Column: restaurant_id
+  References: restaurants.id
+  Type: Integer
+  Nullable: No
+  On Delete: CASCADE (via SQLAlchemy)
+
+Table: menu_items
+  Column: menu_category_id
+  References: menu_categories.id
+  Type: Integer
+  Nullable: No
+  On Delete: CASCADE (via SQLAlchemy)
+
+================================================================================
+                        EXAMPLE HIERARCHY
+================================================================================
+
+Restaurant: "Pizza Palace"
+│
+├─→ MenuCategory: "Pizza"
+│   │
+│   ├─→ MenuItem: "Margherita Pizza" ($12.99)
+│   ├─→ MenuItem: "Pepperoni Pizza" ($14.99)
+│   └─→ MenuItem: "Hawaiian Pizza" ($15.99)
+│
+├─→ MenuCategory: "Appetizers"
+│   │
+│   ├─→ MenuItem: "Garlic Bread" ($5.99)
+│   └─→ MenuItem: "Mozzarella Sticks" ($7.99)
+│
+└─→ MenuCategory: "Desserts"
+    │
+    ├─→ MenuItem: "Tiramisu" ($8.99)
+    └─→ MenuItem: "Chocolate Cake" ($7.99)
+
+================================================================================
+
