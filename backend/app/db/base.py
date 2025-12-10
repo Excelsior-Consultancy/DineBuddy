@@ -24,7 +24,6 @@ class IDMixin:
 
 
 # Import all models here so Alembic can detect them
-# Example:
-# from app.models.user import User
-# from app.models.restaurant import Restaurant
+from app.models.user import User  # noqa
+from app.models.customer import Customer  # noqa
 
