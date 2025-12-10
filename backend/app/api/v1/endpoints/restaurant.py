@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
-
 from app.services.restaurant_service import RestaurantService
 from app.schemas.restaurant import RestaurantCreateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, GenericResponse
 from app.core.database import get_db
