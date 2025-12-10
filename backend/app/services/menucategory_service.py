@@ -1,13 +1,13 @@
 # app/services/menucategory_service.py
 from sqlalchemy.orm import Session
 from app.models.menucategory import MenuCategory
-from app.schemas.menucategoryschema import MenuCategoryCreate
+from app.schemas.menucategoryschema import MenuCategoryCreateRequest
 
 class MenuCategoryService:
     """
     Service for MenuCategory model - provides instance methods for creation and retrieval of menu categories.
     """
-    def create(self, db: Session, menu_category_create: MenuCategoryCreate) -> MenuCategory:
+    def create(self, db: Session, menu_category_create: MenuCategoryCreateRequest) -> MenuCategory:
         menu_category = MenuCategory(
             name=menu_category_create.name,
             restaurant_id=menu_category_create.restaurant_id,

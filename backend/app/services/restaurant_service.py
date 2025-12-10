@@ -1,19 +1,11 @@
 from sqlalchemy.orm import Session
 from app.models.restaurant import Restaurant
-from app.schemas.restaurant import RestaurantCreate
+from app.schemas.restaurant import RestaurantCreateRequest
 
 class RestaurantService:
-<<<<<<< HEAD
-    """
-    Service for Restaurant model - provides instance methods for creation and retrieval of restaurants.
-    """
-    def create(self, db: Session, restaurant_create: RestaurantCreate) -> Restaurant:
-        restaurant = Restaurant(name=restaurant_create.name)
-=======
 
-    def create(self, db: Session, name: str):
-        restaurant = Restaurant(name=name)
->>>>>>> excel-28-create-restaurant
+    def create(self, db: Session, restaurant: RestaurantCreateRequest):
+        restaurant = Restaurant(name=restaurant.name)
         db.add(restaurant)
         db.commit()
         db.refresh(restaurant)

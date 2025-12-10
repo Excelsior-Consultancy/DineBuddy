@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.schemas.menucategoryschema import MenuCategoryCreate, MenuCategoryRead
+from app.schemas.menucategoryschema import MenuCategoryCreateRequest, MenuCategoryRead
 from app.services.menucategory_service import MenuCategoryService
 
 router = APIRouter(prefix="/menucategory", tags=["menucategory"])
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/menucategory", tags=["menucategory"])
 
 @router.post("/create", response_model=MenuCategoryRead)
 def create_menu_category(
-    menu_category: MenuCategoryCreate,
+    menu_category: MenuCategoryCreateRequest,
     db: Session = Depends(get_db)
 ):
     db_category = MenuCategoryService().create(db, menu_category)

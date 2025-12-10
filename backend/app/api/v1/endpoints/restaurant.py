@@ -9,14 +9,11 @@ from app.models.restaurant import Restaurant
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
-<<<<<<< HEAD
 # ------ Endpoints ------ #
 @router.post("/create", response_model=RestaurantRead)
-def create_restaurant(restaurant: RestaurantCreate, db: Session = Depends(get_db)):
+def create_restaurant(restaurant: RestaurantCreateRequest, db: Session = Depends(get_db)):
     db_restaurant = RestaurantService().create(db, restaurant)
     return db_restaurant
-=======
->>>>>>> excel-28-create-restaurant
 
 @router.post("/create", response_model=RestaurantResponse)
 def create_restaurant(restaurant: RestaurantCreateRequest, db: Session = Depends(get_db)):
