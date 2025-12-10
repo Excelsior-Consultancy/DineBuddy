@@ -20,10 +20,9 @@ async def lifespan(app: FastAPI):
     print("🚀 Starting up DineBuddy backend...")
     print(f"📊 Database URL: {settings.DATABASE_URL.split('@')[-1] if '@' in settings.DATABASE_URL else 'Not configured'}")
     
-    # Create tables (for development - in production use Alembic migrations)
-    if settings.ENVIRONMENT == "development":
-        print("🔧 Development mode: Creating database tables...")
-        Base.metadata.create_all(bind=engine)
+    # Note: We use Alembic migrations for database schema management
+    # Tables are created by running: alembic upgrade head
+    # (handled automatically in docker-compose.yml startup command)
     
     yield
     
