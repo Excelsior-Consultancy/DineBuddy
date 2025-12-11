@@ -27,7 +27,7 @@ class RestaurantListResponse(BaseModel):
     data: List[RestaurantRead]
 
 
-class GenericResponse(BaseModel):
+class RestaurantDetailResponse(BaseModel):
     status: bool
     message: str
     data: Optional[RestaurantRead] = None
