@@ -1,14 +1,24 @@
 from sqlalchemy.orm import Session
 from app.models.restaurant import Restaurant
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 
 class RestaurantService:
 
     def create(self, db: Session, name: str):
         restaurant = Restaurant(name=name)
-        db.add(restaurant)
-        db.commit()
-        db.refresh(restaurant)
-        return restaurant
+
+        try:
+            db.add(restaurant)
+            db.commit()
+            db.refresh(restaurant)
+            return restaurant
+
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail="Restaurant with this name already exists.")
 
     def get_all(self, db: Session):
         return db.query(Restaurant).all()

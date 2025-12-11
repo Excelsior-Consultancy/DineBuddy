@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+
 class RestaurantCreateRequest(BaseModel):
     name: str
 
@@ -9,8 +10,9 @@ class RestaurantRead(BaseModel):
     id: int
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True  # Pydantic v2 replacement for orm_mode
+    }
 
 
 class RestaurantResponse(BaseModel):
@@ -29,5 +31,3 @@ class GenericResponse(BaseModel):
     status: bool
     message: str
     data: Optional[RestaurantRead] = None
-
-# Import after class definition to avoid circular import
