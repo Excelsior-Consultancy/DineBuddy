@@ -19,15 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade():
-    # Step 1: Remove duplicates automatically
-    op.execute("""
-        DELETE FROM restaurants r
-        USING restaurants r2
-        WHERE
-            r.id > r2.id AND
-            r.name = r2.name;
-    """)
-
     # Step 2: Add unique constraint
     op.create_unique_constraint(
         "uq_restaurant_name",
