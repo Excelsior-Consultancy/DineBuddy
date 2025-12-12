@@ -19,7 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade():
-    # Step 2: Add unique constraint
     op.create_unique_constraint(
         "uq_restaurant_name",
         "restaurants",
