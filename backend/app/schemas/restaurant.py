@@ -5,15 +5,15 @@ from typing import Optional, List, Dict
 
 class RestaurantCreateRequest(BaseModel):
     name: str
-    address: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
+    address: str
+    phone: str
+    email: str
     logo_url: Optional[str] = None
     timezone: Optional[str] = "Asia/Kolkata"
     currency: Optional[str] = "INR"
 
 class RestaurantUpdateRequest(BaseModel):
-    name: Optional[str] = None
+    name: str
     address: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
