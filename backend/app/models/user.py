@@ -3,6 +3,7 @@ User model - Basic customer/admin authentication
 """
 from sqlalchemy import Column, String, Boolean, DateTime, Enum as SQLEnum
 from datetime import datetime
+from sqlalchemy.orm import relationship
 import enum
 
 from app.db.base import Base, IDMixin, TimestampMixin
@@ -42,6 +43,13 @@ class User(Base, IDMixin, TimestampMixin):
     # Tracking
     last_login = Column(DateTime, nullable=True)
     
+    # Relation between user and restaurant
+    restaurants = relationship(
+        "Restaurant",
+        secondary="user_restaurants",
+        back_populates="users",
+    )
+
     def __repr__(self):
         return f"<User {self.email} ({self.role})>"
     
