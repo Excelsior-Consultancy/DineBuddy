@@ -39,19 +39,17 @@ class RestaurantService:
     def get_all(
         self,
         db: Session,
-        user: User,
-        skip: int = 0,
-        limit: int = 10,
+        skip: int,
+        limit: int,
+        accessible_restaurant_ids: list[int] | None,
         is_active: bool | None = None,
         search: str | None = None,
     ):
         query = db.query(Restaurant)
 
-        # 🔐 STAFF: only their restaurants
-        if not user.is_admin:
-            query = query.join(Restaurant.users).filter(
-                User.id == user.id
-            )
+    # 🔐 STAFF FILTER
+        if accessible_restaurant_ids is not None:
+            query = query.filter(Restaurant.id.in_(accessible_restaurant_ids))
 
         if is_active is not None:
             query = query.filter(Restaurant.is_active == is_active)
@@ -68,6 +66,8 @@ class RestaurantService:
             .limit(limit)
             .all()
         )
+
+        return restaurants, total
 
         return restaurants, total
     # Filter by active status

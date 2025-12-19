@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.restaurant_service import RestaurantService
 from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
-
+from app.core.dependencies import get_accessible_restaurant_ids
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 service = RestaurantService()
@@ -22,26 +22,18 @@ def create_restaurant(payload: RestaurantCreateRequest,db: Session = Depends(get
 
 @router.get("/", response_model=RestaurantListResponse)
 def get_restaurants(
-    request: Request,
     db: Session = Depends(get_db),
+    restaurant_ids: list[int] | None = Depends(get_accessible_restaurant_ids),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
-    is_active: bool | None = Query(None),
-    search: str | None = Query(None),
 ):
-    user = request.state.user
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
     skip = (page - 1) * limit
 
     restaurants, total = service.get_all(
         db=db,
-        user=user,
         skip=skip,
         limit=limit,
-        is_active=is_active,
-        search=search,
+        restaurant_ids=restaurant_ids,
     )
 
     return RestaurantListResponse(
@@ -50,6 +42,7 @@ def get_restaurants(
         data=[RestaurantRead.model_validate(r) for r in restaurants],
         meta={"page": page, "limit": limit, "total": total},
     )
+
 
 
 @router.get("/{restaurant_id}", response_model=RestaurantDetailResponse)
