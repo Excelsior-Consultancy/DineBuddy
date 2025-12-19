@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
-
+from app.models.user import User
 from app.models.restaurant import Restaurant
 from app.utils.slug_generator import generate_unique_slug
 
@@ -36,9 +36,40 @@ class RestaurantService:
         db.refresh(restaurant)
         return restaurant
 
-    def get_all(self, db: Session,skip: int = 0, limit: int = 10, is_active: bool | None = None, search: str | None = None):
+    def get_all(
+        self,
+        db: Session,
+        user: User,
+        skip: int = 0,
+        limit: int = 10,
+        is_active: bool | None = None,
+        search: str | None = None,
+    ):
         query = db.query(Restaurant)
 
+        # 🔐 STAFF: only their restaurants
+        if not user.is_admin:
+            query = query.join(Restaurant.users).filter(
+                User.id == user.id
+            )
+
+        if is_active is not None:
+            query = query.filter(Restaurant.is_active == is_active)
+
+        if search:
+            query = query.filter(Restaurant.name.ilike(f"%{search}%"))
+
+        total = query.count()
+
+        restaurants = (
+            query
+            .order_by(Restaurant.created_at.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        return restaurants, total
     # Filter by active status
         if is_active is not None:
             query = query.filter(Restaurant.is_active == is_active)

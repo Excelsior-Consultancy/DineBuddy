@@ -3,7 +3,7 @@ from app.db.base import Base, TimestampMixin
 
 
 class UserRestaurant(Base, TimestampMixin):
-    __tablename__ = "user_restaurants"
+    __tablename__ = "user_junction"
 
     user_id = Column(
         Integer,

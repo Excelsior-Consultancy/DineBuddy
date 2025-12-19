@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.restaurant_service import RestaurantService
 from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
+
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 service = RestaurantService()
@@ -21,16 +22,22 @@ def create_restaurant(payload: RestaurantCreateRequest,db: Session = Depends(get
 
 @router.get("/", response_model=RestaurantListResponse)
 def get_restaurants(
+    request: Request,
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     is_active: bool | None = Query(None),
     search: str | None = Query(None),
 ):
+    user = request.state.user
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
     skip = (page - 1) * limit
 
     restaurants, total = service.get_all(
         db=db,
+        user=user,
         skip=skip,
         limit=limit,
         is_active=is_active,
@@ -41,11 +48,7 @@ def get_restaurants(
         status=True,
         message="Restaurant list fetched",
         data=[RestaurantRead.model_validate(r) for r in restaurants],
-        meta={
-            "page": page,
-            "limit": limit,
-            "total": total,
-        },
+        meta={"page": page, "limit": limit, "total": total},
     )
 
 
