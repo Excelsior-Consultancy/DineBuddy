@@ -30,4 +30,9 @@ class Restaurant(Base, IDMixin, TimestampMixin):
     timezone = Column(String, nullable=True)
     currency = Column(String, nullable=True)
 
-    # categories = relationship(...)
+    # Relation between user and Restaurant
+    users = relationship(
+        "User",
+        secondary="user_restaurants_map",
+        back_populates="restaurants",
+    )
