@@ -33,10 +33,6 @@ class Restaurant(Base, IDMixin, TimestampMixin):
     # Relation between user and Restaurant
     users = relationship(
         "User",
-<<<<<<< HEAD
-        secondary="user_junction",
-=======
         secondary="user_restaurants_map",
->>>>>>> excel-67-Add-restaurant-id-to-User-model
         back_populates="restaurants",
     )
