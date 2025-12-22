@@ -3,7 +3,11 @@ from app.db.base import Base, TimestampMixin
 
 
 class UserRestaurant(Base, TimestampMixin):
+<<<<<<< HEAD:backend/app/models/junction_table.py
     __tablename__ = "user_junction"
+=======
+    __tablename__ = "user_restaurants_map"
+>>>>>>> excel-67-Add-restaurant-id-to-User-model:backend/app/models/user_restaurant_map.py
 
     user_id = Column(
         Integer,
