@@ -33,6 +33,6 @@ class Restaurant(Base, IDMixin, TimestampMixin):
     # Relation between user and Restaurant
     users = relationship(
         "User",
-        secondary="user_junction",
+        secondary="user_restaurants_map",
         back_populates="restaurants",
     )
