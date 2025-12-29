@@ -29,3 +29,19 @@ class UserRestaurantService:
             )
 
         return True
+
+    def remove_user_from_restaurant(
+        self,
+        db: Session,
+        user_id: int,
+        restaurant_id: int,
+    ):
+        mapping = db.query(UserRestaurant).filter_by(user_id=user_id, restaurant_id=restaurant_id).first()
+        if not mapping:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User-restaurant assignment not found",
+            )
+        db.delete(mapping)
+        db.commit()
+        return True
