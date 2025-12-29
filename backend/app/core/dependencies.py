@@ -22,7 +22,7 @@ def get_current_user(db: Session = Depends(get_db)) -> User:
 
 
 def get_accessible_restaurant_ids(
-    current_user: User,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> list[int] | None:
     """

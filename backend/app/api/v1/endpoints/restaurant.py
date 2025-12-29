@@ -24,7 +24,7 @@ def create_restaurant(payload: RestaurantCreateRequest,db: Session = Depends(get
 @router.get("/", response_model=RestaurantListResponse)
 def get_restaurants(
     db: Session = Depends(get_db),
-    accessible_restaurant_ids: list[int] | None = Depends(get_current_user),
+    accessible_restaurant_ids: list[int] | None = Depends(get_accessible_restaurant_ids),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
 ):

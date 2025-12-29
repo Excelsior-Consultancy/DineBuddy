@@ -31,8 +31,11 @@ class RestaurantRead(BaseModel):
     email: Optional[str]
     logo_url: Optional[str]
     is_active: bool
-    timezone: Optional [str]
-    currency: Optional [str]
+    timezone: Optional[str]
+    currency: Optional[str]
+
+    class Config:
+        from_attributes = True
 
 class RestaurantResponse(BaseModel):
     status: bool
