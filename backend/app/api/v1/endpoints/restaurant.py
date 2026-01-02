@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.restaurant_service import RestaurantService
 from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
-from app.core.dependencies import get_accessible_restaurant_ids, get_current_user
-from app.models.user import User
+from app.core.dependencies import get_accessible_restaurant_ids
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 service = RestaurantService()
