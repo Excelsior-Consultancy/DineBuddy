@@ -25,7 +25,7 @@ class UserRestaurantService:
             db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User already assigned to this restaurant",
+                detail="User already assigned to this restaurant, or invalid user/restaurant.",
             )
 
         return True

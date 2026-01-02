@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from app.models.user import User
+from app.core.dependencies import get_current_user
 from app.core.database import get_db
 from app.services.restaurant_service import RestaurantService
 from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
@@ -22,17 +24,13 @@ def create_restaurant(payload: RestaurantCreateRequest,db: Session = Depends(get
 
 @router.get("/", response_model=RestaurantListResponse)
 def get_restaurants(
-    request: Request,
+    user: User = Depends(get_current_user),  # Use actual dependency
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     is_active: bool | None = Query(None),
     search: str | None = Query(None),
 ):
-    user = request.state.user
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
     skip = (page - 1) * limit
 
     restaurants, total = service.get_all(

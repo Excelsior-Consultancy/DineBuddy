@@ -70,24 +70,6 @@ class RestaurantService:
         )
 
         return restaurants, total
-    # Filter by active status
-        if is_active is not None:
-            query = query.filter(Restaurant.is_active == is_active)
-
-    # Search by name
-        if search:
-            query = query.filter(Restaurant.name.ilike(f"%{search}%"))
-        total = query.count()
-
-        restaurants = (
-            query
-            .order_by(Restaurant.created_at.desc())
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
-
-        return restaurants, total
 
 
     def get_by_id(self, db: Session, restaurant_id: int):
