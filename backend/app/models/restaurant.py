@@ -36,5 +36,12 @@ class Restaurant(Base, IDMixin, TimestampMixin):
     users = relationship(
         "User",
         secondary="user_restaurants_map",
-        back_populates="restaurants",
+        back_populates="restaurants")
+
+    settings = relationship(
+        "RestaurantSettings",
+        back_populates="restaurant",
+        uselist=False,  # One-to-one
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
