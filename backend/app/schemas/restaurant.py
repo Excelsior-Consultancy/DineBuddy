@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List, Dict
-
+from app.utils.validators import validate_business_hours_format
 
 
 class RestaurantCreateRequest(BaseModel):
@@ -11,9 +11,18 @@ class RestaurantCreateRequest(BaseModel):
     logo_url: Optional[str] = None
     timezone: Optional[str] = "Asia/Kolkata"
     currency: Optional[str] = "INR"
+    business_hours: Optional[dict] = None
+    description: Optional[str] = None
+    cuisine_type: Optional[str] = None
+
+    @field_validator('business_hours')
+    @classmethod
+    def validate_business_hours(cls, v):
+        return validate_business_hours_format(v)
+
 
 class RestaurantUpdateRequest(BaseModel):
-    name: str
+    name: Optional[str] = None
     address: Optional[str] = None
     phone: Optional[str] = None
     email: Optional[str] = None
@@ -21,6 +30,26 @@ class RestaurantUpdateRequest(BaseModel):
     is_active: Optional[bool] = None
     timezone: Optional[str] = None
     currency: Optional[str] = None
+    business_hours: Optional[dict] = None
+    description: Optional[str] = None
+    cuisine_type: Optional[str] = None
+
+    @field_validator('business_hours')
+    @classmethod
+    def validate_business_hours(cls, v):
+        return validate_business_hours_format(v)
+
+
+class RestaurantProfileUpdateRequest(BaseModel):
+    """Schema for updating restaurant profile (business_hours, description, cuisine_type)"""
+    business_hours: Optional[dict] = None
+    description: Optional[str] = None
+    cuisine_type: Optional[str] = None
+
+    @field_validator('business_hours')
+    @classmethod
+    def validate_business_hours(cls, v):
+        return validate_business_hours_format(v)
 
 
 class RestaurantRead(BaseModel):
@@ -32,8 +61,11 @@ class RestaurantRead(BaseModel):
     email: Optional[str]
     logo_url: Optional[str]
     is_active: bool
-    timezone: str
-    currency: str
+    timezone: Optional[str] = None
+    currency: Optional[str] = None
+    business_hours: Optional[dict] = None
+    description: Optional[str] = None
+    cuisine_type: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -56,3 +88,8 @@ class RestaurantDetailResponse(BaseModel):
     status: bool
     message: str
     data: Optional[RestaurantRead] = None
+
+
+class RestaurantStaffAddRequest(BaseModel):
+    """Request body to add a staff user to a restaurant"""
+    user_id: int
