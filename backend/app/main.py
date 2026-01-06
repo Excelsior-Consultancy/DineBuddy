@@ -4,7 +4,6 @@ Main FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-
 from app.core.config import settings
 from app.core.database import engine
 from app.db.base import Base
