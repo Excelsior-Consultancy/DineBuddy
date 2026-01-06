@@ -4,25 +4,21 @@ from app.core.database import get_db
 from app.models.user import User, UserRole
 from app.models.user_restaurant_map import UserRestaurant
 
+
 def get_current_user(db: Session = Depends(get_db)) -> User:
     """
-    TEMP VERSION (for testing)
-    Later you will replace this with JWT auth
+    Dummy current_user dependency.
+    For production, replace this with your real authentication logic
+    (e.g., extract user from JWT or session, check headers, etc.).
     """
-
-    user = db.query(User).first()  # TEMP: always returns first user
-
+    # Example: Always return the first user (replace logic for real auth!)
+    user = db.query(User).first()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-        )
-
+        raise HTTPException(status_code=401, detail="Unauthorized: No users in the system.")
     return user
 
-
 def get_accessible_restaurant_ids(
-    current_user: User = Depends(get_current_user),
+    current_user: User,
     db: Session = Depends(get_db),
 ) -> list[int] | None:
     """

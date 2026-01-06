@@ -39,15 +39,25 @@ class RestaurantService:
     def get_all(
         self,
         db: Session,
-        accessible_restaurant_ids: list[int] | None,
+        user: User,
         skip: int = 0,
         limit: int = 10,
+        is_active: bool | None = None,
+        search: str | None = None,
     ):
         query = db.query(Restaurant)
 
-        # 🔐 Apply restriction ONLY if staff
-        if accessible_restaurant_ids is not None:
-            query = query.filter(Restaurant.id.in_(accessible_restaurant_ids))
+        # 🔐 STAFF: only their restaurants
+        if not user.is_admin:
+            query = query.join(Restaurant.users).filter(
+                User.id == user.id
+            )
+
+        if is_active is not None:
+            query = query.filter(Restaurant.is_active == is_active)
+
+        if search:
+            query = query.filter(Restaurant.name.ilike(f"%{search}%"))
 
         total = query.count()
 
