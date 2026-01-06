@@ -22,7 +22,7 @@ def upgrade() -> None:
     # Add 'restaurant_admin' to the userrole enum type
     # Note: ALTER TYPE ... ADD VALUE cannot be run inside a transaction block in PostgreSQL
     # Alembic handles this by running it outside the transaction
-    op.execute("ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'RESTAURANT_ADMIN'")
+    op.execute("ALTER TYPE userrole ADD VALUE IF NOT EXISTS 'restaurant_admin'")
 
 
 def downgrade() -> None:
