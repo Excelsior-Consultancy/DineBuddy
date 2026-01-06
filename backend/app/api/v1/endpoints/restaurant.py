@@ -18,11 +18,12 @@ from app.schemas.restaurant import (
     RestaurantListResponse,
     RestaurantDetailResponse,
 )
-
+from app.schemas.restaurant_setting_schema import RestaurantSettingsUpdateRequest, RestaurantSettingsRead
+from app.services.restaurant_setting_service import RestaurantSettingsService
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 service = RestaurantService()
-
+settings_service = RestaurantSettingsService()
 
 
 @router.post("/",response_model=RestaurantResponse,status_code=status.HTTP_201_CREATED)
@@ -209,3 +210,47 @@ def add_restaurant_staff(
         message="Staff assigned to restaurant",
         data=RestaurantRead.model_validate(restaurant),
     )
+
+@router.get(
+    "/{restaurant_id}/settings",
+    response_model=RestaurantSettingsRead,
+)
+def get_restaurant_settings(
+    restaurant_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
+    settings = settings_service.get_or_create(db, restaurant_id)
+    return RestaurantSettingsRead.model_validate(settings)
+    
+@router.patch(
+    "/{restaurant_id}/settings",
+    response_model=RestaurantSettingsUpdateRequest,
+)
+def update_restaurant_settings(
+    restaurant_id: int,
+    payload: RestaurantSettingsUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
+    settings = settings_service.update(db, restaurant_id, payload)
+    return RestaurantSettingsRead.model_validate(settings)
+
