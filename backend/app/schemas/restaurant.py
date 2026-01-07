@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict
 
 
-
 class RestaurantCreateRequest(BaseModel):
     name: str
     address: str
@@ -32,12 +31,11 @@ class RestaurantRead(BaseModel):
     email: Optional[str]
     logo_url: Optional[str]
     is_active: bool
-    timezone: str
-    currency: str
+    timezone: Optional[str]
+    currency: Optional[str]
 
     class Config:
         from_attributes = True
-
 
 class RestaurantResponse(BaseModel):
     status: bool
