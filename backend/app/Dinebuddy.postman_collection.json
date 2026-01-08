@@ -9,6 +9,50 @@
 	},
 	"item": [
 		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Heath get",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8000/api/v1/health",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"health"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Restaurant",
 			"item": [
 				{
@@ -364,50 +408,6 @@
 			]
 		},
 		{
-			"name": "Health",
-			"item": [
-				{
-					"name": "Heath get",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "127.0.0.1:8000/api/v1/health",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"v1",
-								"health"
-							]
-						},
-						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Menu Category",
 			"item": [
 				{
@@ -502,6 +502,168 @@
 					"request": {
 						"method": "GET",
 						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "menu items",
+			"item": [
+				{
+					"name": "Add restaurant menu item using restaurant admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "3",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Paneer Butter Masala\",\r\n  \"description\": \"Creamy paneer gravy\",\r\n  \"price\": 260,\r\n  \"category_id\": 3,\r\n  \"is_available\": true,\r\n  \"is_vegetarian\": true,\r\n  \"preparation_time_minutes\": 20\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/restaurants/2/menu-items/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"2",
+								"menu-items",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get restaurant menu items",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "3",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Paneer Butter Masala\",\r\n  \"description\": \"Creamy paneer gravy\",\r\n  \"price\": 260,\r\n  \"category_id\": 3,\r\n  \"is_available\": true,\r\n  \"is_vegetarian\": true,\r\n  \"preparation_time_minutes\": 20\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/restaurants/2/menu-items/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"2",
+								"menu-items",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update as restaurant admin",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "3",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"price\": 280,\r\n  \"is_available\": false\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/restaurants/2/menu-items/3",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"2",
+								"menu-items",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete menu item restaurant admin",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "3",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/restaurants/2/menu-items/2",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"2",
+								"menu-items",
+								"2"
+							]
+						}
 					},
 					"response": []
 				}

@@ -43,7 +43,6 @@ class MenuItem(Base, TimestampMixin):
     is_global = Column(Boolean, nullable=False, server_default="false")
 
     preparation_time_minutes = Column(Integer, nullable=True)
-    calories = Column(Integer, nullable=True)
 
     __table_args__ = (
         Index("ix_menu_items_restaurant_category", "restaurant_id", "category_id"),

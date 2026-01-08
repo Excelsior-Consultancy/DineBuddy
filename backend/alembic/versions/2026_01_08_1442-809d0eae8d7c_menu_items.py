@@ -33,7 +33,6 @@ def upgrade() -> None:
         sa.Column("is_vegetarian", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("is_global", sa.Boolean(), server_default="false", nullable=False),
         sa.Column("preparation_time_minutes", sa.Integer(), nullable=True),
-        sa.Column("calories", sa.Integer(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
 

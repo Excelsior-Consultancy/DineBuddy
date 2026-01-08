@@ -12,7 +12,6 @@ class MenuItemBase(BaseModel):
     is_vegetarian: bool = False
     is_global: bool = False
     preparation_time_minutes: Optional[int] = None
-    calories: Optional[int] = None
 
 
 class MenuItemCreate(MenuItemBase):
@@ -20,7 +19,6 @@ class MenuItemCreate(MenuItemBase):
 
 
 class MenuItemUpdate(BaseModel):
-    category_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
@@ -28,8 +26,9 @@ class MenuItemUpdate(BaseModel):
     is_available: Optional[bool] = None
     is_vegetarian: Optional[bool] = None
     preparation_time_minutes: Optional[int] = None
-    calories: Optional[int] = None
-
+    is_global: Optional[bool] = None
+    restaurant_id: Optional[int] = None
+    category_id: Optional[int] = None
 
 class MenuItemRead(MenuItemBase):
     id: int
