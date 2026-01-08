@@ -12,6 +12,7 @@ from app.db.base import Base, IDMixin, TimestampMixin
 class UserRole(str, enum.Enum):
     """User roles for authenticated users (credential-based login)"""
     ADMIN = "admin"
+    RESTAURANT_ADMIN = "restaurant_admin"  # restaurant owner/manager
     RESTAURANT_STAFF = "restaurant_staff"
 
 
@@ -62,3 +63,8 @@ class User(Base, IDMixin, TimestampMixin):
     def is_restaurant_staff(self) -> bool:
         """Check if user is restaurant staff"""
         return self.role == UserRole.RESTAURANT_STAFF
+
+    @property
+    def is_restaurant_admin(self) -> bool:
+        """Check if user is restaurant admin"""
+        return self.role == UserRole.RESTAURANT_ADMIN
