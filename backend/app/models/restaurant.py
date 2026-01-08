@@ -45,3 +45,9 @@ class Restaurant(Base, IDMixin, TimestampMixin):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    menu_categories = relationship(
+        "MenuCategory",
+        back_populates="restaurant",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
