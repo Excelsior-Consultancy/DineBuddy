@@ -8,18 +8,9 @@ from app.core.dependencies import (
 )
 from app.core.database import get_db
 from app.services.restaurant_service import RestaurantService
-from app.schemas.restaurant import (
-    RestaurantCreateRequest,
-    RestaurantUpdateRequest,
-    RestaurantProfileUpdateRequest,
-    RestaurantStaffAddRequest,
-    RestaurantRead,
-    RestaurantResponse,
-    RestaurantListResponse,
-    RestaurantDetailResponse,
-)
-from app.schemas.restaurant_setting_schema import RestaurantSettingsUpdateRequest, RestaurantSettingsRead
-from app.services.restaurant_setting_service import RestaurantSettingsService
+from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
+from app.core.dependencies import get_accessible_restaurant_ids
+
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 service = RestaurantService()
@@ -44,10 +35,9 @@ def create_restaurant(
 def get_restaurants(
     user: User = Depends(get_current_user),  # Use actual dependency
     db: Session = Depends(get_db),
+    accessible_restaurant_ids: list[int] | None = Depends(get_accessible_restaurant_ids),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
-    is_active: bool | None = Query(None),
-    search: str | None = Query(None),
 ):
     skip = (page - 1) * limit
 
@@ -56,8 +46,6 @@ def get_restaurants(
         user=user,
         skip=skip,
         limit=limit,
-        is_active=is_active,
-        search=search,
     )
 
     return RestaurantListResponse(
@@ -66,6 +54,7 @@ def get_restaurants(
         data=[RestaurantRead.model_validate(r) for r in restaurants],
         meta={"page": page, "limit": limit, "total": total},
     )
+
 
 
 @router.get("/{restaurant_id}", response_model=RestaurantDetailResponse)
