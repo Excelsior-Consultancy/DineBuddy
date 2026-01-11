@@ -6,8 +6,6 @@ from app.models.user import User, UserRole
 from app.core.dependencies import check_restaurant_access
 
 
-
-
 def create_category(
     db: Session,
     restaurant_id: int | None,
