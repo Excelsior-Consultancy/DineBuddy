@@ -1,6 +1,6 @@
 """menu items
 
-Revision ID: 809d0eae8d7c
+Revision ID: 0b26b4720191
 Revises: 76db1aa9fa96
 Create Date: 2026-01-08 14:42:44.068195
 
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '809d0eae8d7c'
-down_revision: Union[str, None] = '76db1aa9fa96'
+down_revision: Union[str, None] = '0b26b4720191'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
