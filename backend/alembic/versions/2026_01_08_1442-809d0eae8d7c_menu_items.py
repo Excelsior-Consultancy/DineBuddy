@@ -62,13 +62,6 @@ def upgrade() -> None:
         "menu_items",
         ["is_available"],
     )
-    op.create_index(
-    "uq_menu_items_restaurant_name_non_global",
-    "menu_items",
-    ["restaurant_id", "name"],
-    unique=True,
-    postgresql_where=sa.text("is_global = false"),
-)
     # ### end Alembic commands ###
 
 
@@ -80,9 +73,5 @@ def downgrade() -> None:
     op.drop_index("ix_menu_items_restaurant_id", table_name="menu_items")
     op.drop_index("ix_menu_items_name", table_name="menu_items")
     op.drop_index("ix_menu_items_id", table_name="menu_items")
-    op.drop_index(
-    "uq_menu_items_restaurant_name_non_global",
-    table_name="menu_items",
-)
     op.drop_table("menu_items")
     # ### end Alembic commands ###
