@@ -1,9 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, check_restaurant_access
-from app.models.user import User, UserRole
+from app.core.dependencies import (
+    get_current_user,
+    check_restaurant_access,
+    require_admin,
+)
+from app.models.user import User
 from app.schemas.menu_category_schema import (
     MenuCategoryCreate,
     MenuCategoryRead,
@@ -17,12 +22,16 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=MenuCategoryRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=MenuCategoryRead,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_menu_category(
     restaurant_id: int,
     payload: MenuCategoryCreate,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     ADMIN:
@@ -30,17 +39,13 @@ def create_menu_category(
       - Can create restaurant categories
 
     RESTAURANT_ADMIN:
-      - Can create categories for assigned restaurants
+      - Can create categories only for assigned restaurants
       - Cannot create global categories
     """
 
-    # Global category → ADMIN only
     if payload.is_global:
-        if current_user.role != UserRole.ADMIN:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only platform admins can create global categories",
-            )
+        # Admin-only global category
+        require_admin(current_user)
         target_restaurant_id = None
     else:
         # Restaurant category
@@ -51,14 +56,18 @@ def create_menu_category(
         db=db,
         restaurant_id=target_restaurant_id,
         data=payload,
+        user=current_user,
     )
 
 
-@router.get("/", response_model=List[MenuCategoryRead])
+@router.get(
+    "/",
+    response_model=List[MenuCategoryRead],
+)
 def list_menu_categories(
     restaurant_id: int,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     ADMIN / RESTAURANT_ADMIN:
@@ -74,13 +83,16 @@ def list_menu_categories(
     )
 
 
-@router.patch("/{category_id}", response_model=MenuCategoryRead)
+@router.patch(
+    "/{category_id}",
+    response_model=MenuCategoryRead,
+)
 def update_menu_category(
     restaurant_id: int,
     category_id: int,
     payload: MenuCategoryUpdate,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     ADMIN:
@@ -91,38 +103,23 @@ def update_menu_category(
       - Cannot update global categories
     """
 
-    category = menu_category_service.get_category(db, category_id)
-
-    if not category:
-        raise HTTPException(status_code=404, detail="Menu category not found")
-
-    # Global category protection
-    if category.is_global and current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only platform admins can update global categories",
-        )
-
-    # Restaurant category checks
-    if not category.is_global:
-        if category.restaurant_id != restaurant_id:
-            raise HTTPException(status_code=404, detail="Menu category not found")
-
-        check_restaurant_access(restaurant_id, current_user, db)
-
     return menu_category_service.update_category(
         db=db,
-        category=category,
+        category_id=category_id,
         data=payload,
+        user=current_user,
     )
 
 
-@router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{category_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_menu_category(
     restaurant_id: int,
     category_id: int,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     ADMIN:
@@ -133,23 +130,8 @@ def delete_menu_category(
       - Cannot delete global categories
     """
 
-    category = menu_category_service.get_category(db, category_id)
-
-    if not category:
-        raise HTTPException(status_code=404, detail="Menu category not found")
-
-    # Global category protection
-    if category.is_global and current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only platform admins can delete global categories",
-        )
-
-    # Restaurant category checks
-    if not category.is_global:
-        if category.restaurant_id != restaurant_id:
-            raise HTTPException(status_code=404, detail="Menu category not found")
-
-        check_restaurant_access(restaurant_id, current_user, db)
-
-    menu_category_service.delete_category(db, category)
+    menu_category_service.delete_category(
+        db=db,
+        category_id=category_id,
+        user=current_user,
+    )
