@@ -27,14 +27,12 @@ router = APIRouter(
 def list_menu_items(
     restaurant_id: int,
     category_id: int | None = None,
-    include_global: bool = True,
     db: Session = Depends(get_db),
 ):
     return menu_items_service.list_menu_items(
         db,
         restaurant_id=restaurant_id,
         category_id=category_id,
-        include_global=include_global,
     )
 
 
@@ -49,9 +47,7 @@ def get_menu_item(
 ):
     item = menu_items_service.get_menu_item(db, item_id)
 
-    if not item or (
-        not item.is_global and item.restaurant_id != restaurant_id
-    ):
+    if not item or item.restaurant_id != restaurant_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Menu item not found",
@@ -70,7 +66,6 @@ def create_menu_item(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Only ADMIN or RESTAURANT_ADMIN
     if current_user.role not in (
         UserRole.ADMIN,
         UserRole.RESTAURANT_ADMIN,
@@ -80,13 +75,6 @@ def create_menu_item(
             detail="Not allowed to create menu items",
         )
 
-    # Prevent global creation via restaurant route
-    if data.is_global:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Global menu items cannot be created under a restaurant",
-        )
-
     # Restaurant admin must have access
     check_restaurant_access(
         restaurant_id=restaurant_id,
@@ -94,8 +82,8 @@ def create_menu_item(
         db=db,
     )
 
+    # Enforce restaurant-scoped creation
     data.restaurant_id = restaurant_id
-    data.is_global = False
 
     return menu_items_service.create_menu_item(db, data)
 
@@ -118,7 +106,6 @@ def update_menu_item(
             detail="Menu item not found",
         )
 
-    # Only ADMIN or RESTAURANT_ADMIN
     if current_user.role not in (
         UserRole.ADMIN,
         UserRole.RESTAURANT_ADMIN,
@@ -128,22 +115,14 @@ def update_menu_item(
             detail="Not allowed to update menu items",
         )
 
-    # Global item safety (extra guard)
-    if item.is_global:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Global menu items cannot be modified here",
-        )
-
     check_restaurant_access(
         restaurant_id=restaurant_id,
         current_user=current_user,
         db=db,
     )
 
-    # Prevent switching restaurant / global
+    # Prevent changing ownership
     data_dict = data.model_dump(exclude_unset=True)
-    data_dict.pop("is_global", None)
     data_dict.pop("restaurant_id", None)
 
     return menu_items_service.update_menu_item(
@@ -170,7 +149,6 @@ def delete_menu_item(
             detail="Menu item not found",
         )
 
-    # Only ADMIN or RESTAURANT_ADMIN
     if current_user.role not in (
         UserRole.ADMIN,
         UserRole.RESTAURANT_ADMIN,
@@ -178,13 +156,6 @@ def delete_menu_item(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not allowed to delete menu items",
-        )
-
-    # Global item safety
-    if item.is_global:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Global menu items cannot be deleted here",
         )
 
     check_restaurant_access(

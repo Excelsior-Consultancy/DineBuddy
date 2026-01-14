@@ -3,6 +3,9 @@ from app.models.menu_items import MenuItem
 from app.schemas.menu_items_schema import MenuItemCreate, MenuItemUpdate
 
 
+# ------------------------------------------------
+# CREATE
+# ------------------------------------------------
 def create_menu_item(db: Session, data: MenuItemCreate) -> MenuItem:
     item = MenuItem(**data.model_dump())
     db.add(item)
@@ -11,35 +14,38 @@ def create_menu_item(db: Session, data: MenuItemCreate) -> MenuItem:
     return item
 
 
+# ------------------------------------------------
+# GET BY ID
+# ------------------------------------------------
 def get_menu_item(db: Session, item_id: int) -> MenuItem | None:
     return db.query(MenuItem).filter(MenuItem.id == item_id).first()
 
 
+# ------------------------------------------------
+# LIST (Restaurant Scoped)
+# ------------------------------------------------
 def list_menu_items(
     db: Session,
-    restaurant_id: int | None = None,
+    restaurant_id: int,
     category_id: int | None = None,
-    include_global: bool = True,
 ):
-    query = db.query(MenuItem)
+    query = db.query(MenuItem).filter(
+        MenuItem.restaurant_id == restaurant_id
+    )
 
     if category_id:
         query = query.filter(MenuItem.category_id == category_id)
 
-    if restaurant_id is not None:
-        if include_global:
-            query = query.filter(
-                (MenuItem.restaurant_id == restaurant_id)
-                | (MenuItem.is_global.is_(True))
-            )
-        else:
-            query = query.filter(MenuItem.restaurant_id == restaurant_id)
-
     return query.order_by(MenuItem.name.asc()).all()
 
 
+# ------------------------------------------------
+# UPDATE
+# ------------------------------------------------
 def update_menu_item(
-    db: Session, item: MenuItem, data: MenuItemUpdate
+    db: Session,
+    item: MenuItem,
+    data: MenuItemUpdate,
 ) -> MenuItem:
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(item, field, value)
@@ -49,6 +55,9 @@ def update_menu_item(
     return item
 
 
-def delete_menu_item(db: Session, item: MenuItem):
+# ------------------------------------------------
+# DELETE
+# ------------------------------------------------
+def delete_menu_item(db: Session, item: MenuItem) -> None:
     db.delete(item)
     db.commit()

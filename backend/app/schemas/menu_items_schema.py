@@ -10,7 +10,6 @@ class MenuItemBase(BaseModel):
     image_url: Optional[str] = None
     is_available: bool = True
     is_vegetarian: bool = False
-    is_global: bool = False
     preparation_time_minutes: Optional[int] = None
 
 
@@ -26,7 +25,6 @@ class MenuItemUpdate(BaseModel):
     is_available: Optional[bool] = None
     is_vegetarian: Optional[bool] = None
     preparation_time_minutes: Optional[int] = None
-    is_global: Optional[bool] = None
     restaurant_id: Optional[int] = None
     category_id: Optional[int] = None
 
