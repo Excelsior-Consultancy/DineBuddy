@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from app.models.user import User
-from app.core.dependencies import get_current_user
+from app.models.user import User, UserRole
+from app.core.dependencies import (
+    get_current_user,
+    check_restaurant_access,
+    require_admin,
+)
 from app.core.database import get_db
 from app.services.restaurant_service import RestaurantService
 from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
@@ -10,11 +14,15 @@ from app.core.dependencies import get_accessible_restaurant_ids
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 service = RestaurantService()
-
+settings_service = RestaurantSettingsService()
 
 
 @router.post("/",response_model=RestaurantResponse,status_code=status.HTTP_201_CREATED)
-def create_restaurant(payload: RestaurantCreateRequest,db: Session = Depends(get_db)):
+def create_restaurant(
+    payload: RestaurantCreateRequest,
+    user: User = Depends(require_admin),  # Admin only
+    db: Session = Depends(get_db),
+):
     restaurant = service.create(db, payload)
     return RestaurantResponse(
         status=True,
@@ -52,8 +60,13 @@ def get_restaurants(
 @router.get("/{restaurant_id}", response_model=RestaurantDetailResponse)
 def get_restaurant(
     restaurant_id: int,
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # ADMIN can access all; others must be assigned
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
     restaurant = service.get_by_id(db, restaurant_id)
 
     if not restaurant:
@@ -72,8 +85,19 @@ def get_restaurant(
 def update_restaurant(
     restaurant_id: int,
     payload: RestaurantUpdateRequest,
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # Only ADMIN or RESTAURANT_ADMIN
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+    # ADMIN can update any; RESTAURANT_ADMIN must be assigned
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
     restaurant = service.update(db, restaurant_id, payload)
 
     if not restaurant:
@@ -89,11 +113,43 @@ def update_restaurant(
     )
 
 
+@router.patch("/{restaurant_id}/profile", response_model=RestaurantDetailResponse)
+def update_restaurant_profile(
+    restaurant_id: int,
+    payload: RestaurantProfileUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    # Only ADMIN or RESTAURANT_ADMIN
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+    # ADMIN can update any; RESTAURANT_ADMIN must be assigned
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
+    restaurant = service.update(db, restaurant_id, payload)
+
+    if not restaurant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Restaurant not found",
+        )
+
+    return RestaurantDetailResponse(
+        status=True,
+        message="Restaurant profile updated successfully",
+        data=RestaurantRead.model_validate(restaurant),
+    )
+
 
 
 @router.delete("/{restaurant_id}", response_model=RestaurantDetailResponse)
 def delete_restaurant(
     restaurant_id: int,
+    user: User = Depends(require_admin),  # Admin only
     db: Session = Depends(get_db),
 ):
     deleted = service.delete(db, restaurant_id)
@@ -109,3 +165,81 @@ def delete_restaurant(
         message="Restaurant deleted successfully",
         data=None,
     )
+
+
+@router.post("/{restaurant_id}/staff", response_model=RestaurantDetailResponse)
+def add_restaurant_staff(
+    restaurant_id: int,
+    payload: RestaurantStaffAddRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Add a staff user to a restaurant.
+    - ADMIN can assign staff to any restaurant
+    - RESTAURANT_ADMIN can assign staff only to their own restaurants
+    """
+    # Only ADMIN or RESTAURANT_ADMIN
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
+    restaurant = service.add_staff(
+        db=db,
+        restaurant_id=restaurant_id,
+        staff_user_id=payload.user_id,
+    )
+
+    return RestaurantDetailResponse(
+        status=True,
+        message="Staff assigned to restaurant",
+        data=RestaurantRead.model_validate(restaurant),
+    )
+
+@router.get(
+    "/{restaurant_id}/settings",
+    response_model=RestaurantSettingsRead,
+)
+def get_restaurant_settings(
+    restaurant_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
+    settings = settings_service.get_or_create(db, restaurant_id)
+    return RestaurantSettingsRead.model_validate(settings)
+    
+@router.patch(
+    "/{restaurant_id}/settings",
+    response_model=RestaurantSettingsUpdateRequest,
+)
+def update_restaurant_settings(
+    restaurant_id: int,
+    payload: RestaurantSettingsUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if user.role not in [UserRole.ADMIN, UserRole.RESTAURANT_ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or Restaurant Admin access required",
+        )
+
+    if user.role != UserRole.ADMIN:
+        check_restaurant_access(restaurant_id, user, db)
+
+    settings = settings_service.update(db, restaurant_id, payload)
+    return RestaurantSettingsRead.model_validate(settings)
+
