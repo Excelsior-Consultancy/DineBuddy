@@ -1,0 +1,92 @@
+[33m329aedc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mBuild-menu-items[m[33m)[m HEAD@{0}: reset: moving to 329aedc
+[33ma1f41a1[m HEAD@{1}: commit: created services of update, delete & patch
+[33m315aa05[m HEAD@{2}: commit: created services of update, delete & patch
+[33m9de6fde[m HEAD@{3}: checkout: moving from Build-menu-category to Build-menu-items
+[33m2deaa55[m[33m ([m[1;31morigin/Build-menu-category[m[33m, [m[1;32mBuild-menu-category[m[33m)[m HEAD@{4}: checkout: moving from Build-menu-items to Build-menu-category
+[33m9de6fde[m HEAD@{5}: commit: nothing
+[33md81b176[m HEAD@{6}: commit: nothing
+[33m057fad7[m[33m ([m[1;31morigin/Build-menu-items[m[33m)[m HEAD@{7}: commit: Updated postman collection
+[33mede40ca[m HEAD@{8}: commit: Creating menu items table along with model, schema, services and endpoint
+[33m2deaa55[m[33m ([m[1;31morigin/Build-menu-category[m[33m, [m[1;32mBuild-menu-category[m[33m)[m HEAD@{9}: checkout: moving from Build-menu-category to Build-menu-items
+[33m2deaa55[m[33m ([m[1;31morigin/Build-menu-category[m[33m, [m[1;32mBuild-menu-category[m[33m)[m HEAD@{10}: commit: Seed global categories in menu category
+[33m0ea1e33[m HEAD@{11}: commit: Creating menu catagory model and also creating endpoint for the same
+[33mc7e1ff3[m[33m ([m[1;31morigin/Build-profile-update-endpoint[m[33m, [m[1;32mBuild-profile-update-endpoint[m[33m)[m HEAD@{12}: checkout: moving from Build-profile-update-endpoint to Build-menu-category
+[33mc7e1ff3[m[33m ([m[1;31morigin/Build-profile-update-endpoint[m[33m, [m[1;32mBuild-profile-update-endpoint[m[33m)[m HEAD@{13}: commit: Restaurant postman collection
+[33m329aedc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mBuild-menu-items[m[33m)[m HEAD@{14}: commit: alembic version upadated
+[33mc6294e2[m HEAD@{15}: commit: created restaurant setting table for tax_percentage, service_charge, auto_accept_orders, order_preparation_time
+[33m16bc1fe[m HEAD@{16}: commit: Created an role of restaurant admin and give access to the assigned restaurant to update and delete the restaurant
+[33ma337632[m[33m ([m[1;31morigin/user-restaurant-endpoint[m[33m, [m[1;32muser-restaurant-endpoint[m[33m)[m HEAD@{17}: checkout: moving from user-restaurant-endpoint to Build-profile-update-endpoint
+[33ma337632[m[33m ([m[1;31morigin/user-restaurant-endpoint[m[33m, [m[1;32muser-restaurant-endpoint[m[33m)[m HEAD@{18}: checkout: moving from architecture-level-decision--Dependency to user-restaurant-endpoint
+[33m09f8a41[m[33m ([m[1;31morigin/architecture-level-decision--Dependency[m[33m, [m[1;32marchitecture-level-decision--Dependency[m[33m)[m HEAD@{19}: commit: Resolve the comments respectivly
+[33m3f0eb22[m HEAD@{20}: checkout: moving from user-restaurant-endpoint to architecture-level-decision--Dependency
+[33ma337632[m[33m ([m[1;31morigin/user-restaurant-endpoint[m[33m, [m[1;32muser-restaurant-endpoint[m[33m)[m HEAD@{21}: commit: Resolve the comments respectivly
+[33mbeec255[m HEAD@{22}: checkout: moving from architecture-level-decision--Dependency to user-restaurant-endpoint
+[33m3f0eb22[m HEAD@{23}: checkout: moving from excel-67-Add-restaurant-id-to-User-model to architecture-level-decision--Dependency
+[33mfd29665[m[33m ([m[1;31morigin/excel-67-Add-restaurant-id-to-User-model[m[33m, [m[1;32mexcel-67-Add-restaurant-id-to-User-model[m[33m)[m HEAD@{24}: checkout: moving from architecture-level-decision--Dependency to excel-67-Add-restaurant-id-to-User-model
+[33m3f0eb22[m HEAD@{25}: commit: created a fastapi dependency and removed middleware from project and main.py
+[33m1159bb5[m HEAD@{26}: checkout: moving from user-restaurant-endpoint to architecture-level-decision--Dependency
+[33mbeec255[m HEAD@{27}: commit: created delete endpoint on user_restaurant table also removed middleware file from project and from main.py
+[33m0ebe88a[m HEAD@{28}: commit: creating endpoint for user_restaurant map
+[33ma1cba40[m[33m ([m[1;32marchitecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{29}: checkout: moving from architecture-level-decision-middleware-and-Dependency to user-restaurant-endpoint
+[33ma1cba40[m[33m ([m[1;32marchitecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{30}: reset: moving to HEAD
+[33ma1cba40[m[33m ([m[1;32marchitecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{31}: checkout: moving from architecture-level-decision--Dependency to architecture-level-decision-middleware-and-Dependency
+[33m1159bb5[m HEAD@{32}: commit: getting current user on get_all endpoint
+[33m7f58a6c[m HEAD@{33}: commit (merge): merge Add-restaurant-id-to-User-model to architecture-level-decision--Dependency
+[33m300e5dd[m HEAD@{34}: commit: dependency additions
+[33m8273f44[m HEAD@{35}: reset: moving to HEAD
+[33m8273f44[m HEAD@{36}: checkout: moving from architecture-level-decision-middleware-and-Dependency to architecture-level-decision--Dependency
+[33ma1cba40[m[33m ([m[1;32marchitecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{37}: checkout: moving from architecture-level-decision--Dependency to architecture-level-decision-middleware-and-Dependency
+[33m8273f44[m HEAD@{38}: checkout: moving from architecture-level-decision-middleware-and-Dependency to architecture-level-decision--Dependency
+[33ma1cba40[m[33m ([m[1;32marchitecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{39}: commit: deleting extra alembic file
+[33md9b1ac1[m HEAD@{40}: commit (merge): merge user_restaurants banch to middleware
+[33m7b2b40f[m[33m ([m[1;31morigin/architecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{41}: checkout: moving from excel-67-Add-restaurant-id-to-User-model to architecture-level-decision-middleware-and-Dependency
+[33mfd29665[m[33m ([m[1;31morigin/excel-67-Add-restaurant-id-to-User-model[m[33m, [m[1;32mexcel-67-Add-restaurant-id-to-User-model[m[33m)[m HEAD@{42}: commit: creating alembic file for user_restaurants_map table
+[33mc008441[m HEAD@{43}: checkout: moving from main to excel-67-Add-restaurant-id-to-User-model
+[33m41d8d25[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{44}: checkout: moving from excel-67-Add-restaurant-id-to-User-model to main
+[33mc008441[m HEAD@{45}: checkout: moving from main to excel-67-Add-restaurant-id-to-User-model
+[33m41d8d25[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{46}: checkout: moving from excel-67-Add-restaurant-id-to-User-model to main
+[33mc008441[m HEAD@{47}: commit: renaming junction to user_restaurant_map
+[33m8c96e6c[m HEAD@{48}: checkout: moving from architecture-level-decision--Dependency to excel-67-Add-restaurant-id-to-User-model
+[33m8273f44[m HEAD@{49}: commit: dependency implementation
+[33m7b2b40f[m[33m ([m[1;31morigin/architecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{50}: checkout: moving from architecture-level-decision-middleware-and-Dependency to architecture-level-decision--Dependency
+[33m7b2b40f[m[33m ([m[1;31morigin/architecture-level-decision-middleware-and-Dependency[m[33m)[m HEAD@{51}: commit: Middleware implementation
+[33m8c96e6c[m HEAD@{52}: checkout: moving from excel-67-Add-restaurant-id-to-User-model to architecture-level-decision-middleware-and-Dependency
+[33m8c96e6c[m HEAD@{53}: checkout: moving from main to excel-67-Add-restaurant-id-to-User-model
+[33m41d8d25[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{54}: pull: Fast-forward
+[33m150d6c8[m HEAD@{55}: checkout: moving from excel-67-Add-restaurant-id-to-User-model to main
+[33m8c96e6c[m HEAD@{56}: commit: creating junction table for users and restaurant
+[33m4161794[m[33m ([m[1;31morigin/excel-28-create-restaurant[m[33m, [m[1;32mexcel-28-create-restaurant[m[33m)[m HEAD@{57}: checkout: moving from excel-28-create-restaurant to excel-67-Add-restaurant-id-to-User-model
+[33m4161794[m[33m ([m[1;31morigin/excel-28-create-restaurant[m[33m, [m[1;32mexcel-28-create-restaurant[m[33m)[m HEAD@{58}: commit: all comments fixed and ready for review
+[33mb821449[m HEAD@{59}: commit: created new coloums in restaruant table aslo add pagination with auto generated slugs
+[33m6fdfae3[m HEAD@{60}: commit: Removing step 2 comment in alembic version to create unique constraint
+[33m9f83940[m HEAD@{61}: commit: Updating alembic version to create unique constraint
+[33m0e44747[m HEAD@{62}: commit: Optional data response class name change
+[33m17db385[m HEAD@{63}: commit: Error correction
+[33mb769511[m HEAD@{64}: commit: Error corrections
+[33m21dfe84[m HEAD@{65}: checkout: moving from excel-28-create-menu-items to excel-28-create-restaurant
+[33m1a09543[m[33m ([m[1;32mexcel-28-create-menu-items[m[33m)[m HEAD@{66}: commit: merge conflict resolve
+[33m453d858[m HEAD@{67}: commit (merge): merge conflict resolve
+[33m1a3d2ef[m HEAD@{68}: checkout: moving from excel-28-create-category to excel-28-create-menu-items
+[33m3012d98[m[33m ([m[1;31morigin/excel-28-create-category[m[33m, [m[1;32mexcel-28-create-category[m[33m)[m HEAD@{69}: commit: resolve the comments and migrate with almebic
+[33m4893ba3[m HEAD@{70}: commit: merge conflict resolve
+[33m8154402[m HEAD@{71}: commit (merge): merge conflict resolve
+[33m3a9077d[m HEAD@{72}: checkout: moving from excel-28-create-restaurant to excel-28-create-category
+[33m21dfe84[m HEAD@{73}: commit: created detele restaurant and resposne sehema
+[33m8422366[m HEAD@{74}: commit (merge): merge conflict resolve
+[33m56158f8[m HEAD@{75}: checkout: moving from main to excel-28-create-restaurant
+[33m150d6c8[m HEAD@{76}: checkout: moving from excel-28-create-menu-items to main
+[33m1a3d2ef[m HEAD@{77}: checkout: moving from main to excel-28-create-menu-items
+[33m150d6c8[m HEAD@{78}: checkout: moving from excel-28-create-menu-items to main
+[33m1a3d2ef[m HEAD@{79}: commit: comment fixed
+[33m6d13fd2[m[33m ([m[1;31morigin/excel-28-create-menu-items[m[33m)[m HEAD@{80}: checkout: moving from main to excel-28-create-menu-items
+[33m150d6c8[m HEAD@{81}: pull: Fast-forward
+[33mc0a97b5[m HEAD@{82}: checkout: moving from excel-28-create-menu-items to main
+[33m6d13fd2[m[33m ([m[1;31morigin/excel-28-create-menu-items[m[33m)[m HEAD@{83}: commit: creating menu item table
+[33m3a9077d[m HEAD@{84}: checkout: moving from excel-28-create-category to excel-28-create-menu-items
+[33m3a9077d[m HEAD@{85}: commit: creating menu category table
+[33m56158f8[m HEAD@{86}: reset: moving to HEAD
+[33m56158f8[m HEAD@{87}: checkout: moving from excel-28-create-restaurant to excel-28-create-category
+[33m56158f8[m HEAD@{88}: commit: Created restaurant table and the endpoint
+[33mc0a97b5[m HEAD@{89}: Branch: renamed refs/heads/restaurant to refs/heads/excel-28-create-restaurant
+[33mc0a97b5[m HEAD@{91}: checkout: moving from main to restaurant
+[33mc0a97b5[m HEAD@{92}: clone: from https://github.com/Excelsior-Consultancy/DineBuddy.git
