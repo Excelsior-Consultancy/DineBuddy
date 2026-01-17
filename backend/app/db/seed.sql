@@ -3,7 +3,7 @@ INSERT INTO users (id, email, password_hash, full_name, role, is_active, is_veri
 VALUES
 (1, 'admin@test.com', 'hash', 'Admin User', 'ADMIN', true, true, now(), now()),
 (2, 'staff@test.com', 'hash', 'Staff User', 'RESTAURANT_STAFF', true, true, now(), now()),
-(3, 'restaurant_admin@test.com', 'hash', 'Restaurant Admin User', 'RESTAURANT_ADMIN', true, true, now(), now());
+(3, 'restaurant_admin@test.com', 'hash', 'Restaurant Admin User', 'restaurant_admin', true, true, now(), now());
 
 -- Restaurants
 INSERT INTO restaurants (id, name, slug, is_active, created_at, updated_at)
