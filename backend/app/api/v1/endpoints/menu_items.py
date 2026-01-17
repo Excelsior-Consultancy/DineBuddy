@@ -2,10 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import (
-    get_current_user,
-    check_restaurant_access,
-)
+from app.core.dependencies import get_current_user, check_restaurant_access
 from app.models.user import User, UserRole
 from app.schemas.menu_items_schema import (
     MenuItemCreate,
@@ -19,6 +16,7 @@ router = APIRouter(
     prefix="/restaurants/{restaurant_id}/menu-items",
     tags=["Restaurant Menu Items"],
 )
+
 
 # ------------------------------------------------------------------
 # LIST MENU ITEMS (PUBLIC)
@@ -75,7 +73,6 @@ def create_menu_item(
             detail="Not allowed to create menu items",
         )
 
-    # Restaurant admin must have access
     check_restaurant_access(
         restaurant_id=restaurant_id,
         current_user=current_user,
@@ -121,15 +118,7 @@ def update_menu_item(
         db=db,
     )
 
-    # Prevent changing ownership
-    data_dict = data.model_dump(exclude_unset=True)
-    data_dict.pop("restaurant_id", None)
-
-    return menu_items_service.update_menu_item(
-        db,
-        item,
-        MenuItemUpdate(**data_dict),
-    )
+    return menu_items_service.update_menu_item(db, item, data)
 
 
 # ------------------------------------------------------------------
