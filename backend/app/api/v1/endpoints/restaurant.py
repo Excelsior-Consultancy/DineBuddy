@@ -7,11 +7,6 @@ from app.core.dependencies import (
     RestaurantAccess,
 )
 from app.services.restaurant_service import RestaurantService
-<<<<<<< HEAD
-from app.schemas.restaurant import (RestaurantCreateRequest, RestaurantUpdateRequest, RestaurantRead, RestaurantResponse, RestaurantListResponse, RestaurantDetailResponse)
-from app.core.dependencies import get_accessible_restaurant_ids
-
-=======
 from app.services.restaurant_setting_service import RestaurantSettingsService
 from app.schemas.restaurant import (
     RestaurantCreateRequest,
@@ -27,7 +22,6 @@ from app.schemas.restaurant_setting_schema import (
     RestaurantSettingsUpdateRequest,
     RestaurantSettingsRead,
 )
->>>>>>> Build-profile-update-endpoint
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
