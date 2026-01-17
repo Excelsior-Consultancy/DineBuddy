@@ -1,6 +1,11 @@
+from typing import List, Optional, Annotated
+
 from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
+<<<<<<< HEAD
 from typing import List, Optional
+=======
+>>>>>>> Build-profile-update-endpoint
 
 from app.core.database import get_db
 from app.models.user import User
@@ -149,3 +154,23 @@ def require_restaurant_admin(
         )
 
     return ids
+
+
+# =========================================================
+# Annotated Dependency Aliases (USE THESE IN ROUTES)
+# =========================================================
+
+DBSession = Annotated[Session, Depends(get_db)]
+
+CurrentUser = Annotated[User, Depends(get_current_user)]
+
+AdminUser = Annotated[User, Depends(require_admin)]
+
+RestaurantAdminRestaurantIds = Annotated[List[int], Depends(require_restaurant_admin)]
+
+AccessibleRestaurantIds = Annotated[
+    Optional[List[int]],
+    Depends(get_accessible_restaurant_ids),
+]
+
+RestaurantAccess = Annotated[None, Depends(check_restaurant_access)]
