@@ -2,7 +2,6 @@ from pydantic import BaseModel, field_validator
 from typing import Optional, List, Dict
 from app.utils.validators import validate_business_hours_format
 
-
 class RestaurantCreateRequest(BaseModel):
     name: str
     address: str
@@ -61,15 +60,11 @@ class RestaurantRead(BaseModel):
     email: Optional[str]
     logo_url: Optional[str]
     is_active: bool
-    timezone: Optional[str] = None
-    currency: Optional[str] = None
-    business_hours: Optional[dict] = None
-    description: Optional[str] = None
-    cuisine_type: Optional[str] = None
+    timezone: Optional[str]
+    currency: Optional[str]
 
     class Config:
         from_attributes = True
-
 
 class RestaurantResponse(BaseModel):
     status: bool

@@ -62,8 +62,6 @@ def get_restaurants(
     db: DBSession,
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
-    is_active: bool | None = Query(None),
-    search: str | None = Query(None),
 ):
     skip = (page - 1) * limit
 
@@ -72,8 +70,6 @@ def get_restaurants(
         user=user,
         skip=skip,
         limit=limit,
-        is_active=is_active,
-        search=search,
     )
 
     return RestaurantListResponse(
