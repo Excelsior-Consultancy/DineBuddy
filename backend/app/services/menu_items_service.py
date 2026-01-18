@@ -61,3 +61,17 @@ def update_menu_item(
 def delete_menu_item(db: Session, item: MenuItem) -> None:
     db.delete(item)
     db.commit()
+
+# ------------------------------------------------
+# Quick availability toggle
+# ------------------------------------------------
+
+def update_menu_item_availability(
+    db: Session,
+    item: MenuItem,
+    is_available: bool
+) -> MenuItem:
+    item.is_available = is_available
+    db.commit()
+    db.refresh(item)
+    return item

@@ -19,6 +19,7 @@ from app.schemas.menu_items_schema import (
     MenuItemCreate,
     MenuItemRead,
     MenuItemUpdate,
+    MenuItemAvailabilityUpdate
 )
 from app.services import (
     menu_items_service,
@@ -231,3 +232,39 @@ def delete_menu_item(
 
     check_restaurant_access(restaurant_id, current_user, db)
     menu_items_service.delete_menu_item(db, item)
+
+
+@router.patch("/{item_id}/availability", response_model=dict)
+def update_menu_item_availability(
+    restaurant_id: int,
+    item_id: int,
+    data: MenuItemAvailabilityUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Get item
+    item = menu_items_service.get_menu_item(db, item_id)
+    if not item or item.restaurant_id != restaurant_id:
+        raise HTTPException(status_code=404, detail="Menu item not found")
+
+    # Permission check
+    if current_user.role not in (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN):
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    check_restaurant_access(restaurant_id, current_user, db)
+
+    # Update availability
+    updated_item = menu_items_service.update_menu_item_availability(
+        db, item, data.is_available
+    )
+
+    # Emit real-time event (placeholder)
+    # Replace with your actual WebSocket or push notification mechanism
+    from app.core.events import notify_customers  # example
+    notify_customers(
+        restaurant_id=restaurant_id,
+        event="menu_item_availability_updated",
+        payload={"item_id": item.id, "is_available": item.is_available},
+    )
+
+    return {"item_id": item.id, "is_available": item.is_available, "status": "updated"}
