@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, status
 from app.core.dependencies import (
     DBSession,
     CurrentUser,
-    AdminUser,
     RestaurantAccess,
 )
 from app.schemas.menu_category_schema import (
@@ -13,12 +12,14 @@ from app.schemas.menu_category_schema import (
     MenuCategoryRead,
     MenuCategoryUpdate,
 )
-from app.services import menu_category_service
+from app.services.menu_category_service import MenuCategoryService
 
 router = APIRouter(
     prefix="/restaurants/{restaurant_id}/menu-categories",
     tags=["Menu Categories"],
 )
+
+menu_category_service = MenuCategoryService()
 
 
 # =========================================================
@@ -34,7 +35,6 @@ def create_menu_category(
     payload: MenuCategoryCreate,
     db: DBSession,
     user: CurrentUser,
-    _: RestaurantAccess,
 ):
     """
     ADMIN:
@@ -57,7 +57,7 @@ def create_menu_category(
     else:
         target_restaurant_id = restaurant_id
 
-    return menu_category_service.create_category(
+    return menu_category_service.create(
         db=db,
         restaurant_id=target_restaurant_id,
         data=payload,
@@ -83,7 +83,7 @@ def list_menu_categories(
       - See global categories
     """
 
-    return menu_category_service.list_categories(
+    return menu_category_service.list(
         db=db,
         restaurant_id=restaurant_id,
     )
@@ -113,7 +113,7 @@ def update_menu_category(
       - Cannot update global categories
     """
 
-    return menu_category_service.update_category(
+    return menu_category_service.update(
         db=db,
         category_id=category_id,
         data=payload,
@@ -144,7 +144,7 @@ def delete_menu_category(
       - Cannot delete global categories
     """
 
-    menu_category_service.delete_category(
+    menu_category_service.delete(
         db=db,
         category_id=category_id,
         user=user,

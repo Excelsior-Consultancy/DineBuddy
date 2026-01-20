@@ -20,12 +20,4 @@ class MenuCategory(Base, TimestampMixin):
     is_active = Column(Boolean, default=True, nullable=False)
     is_global = Column(Boolean, default=False, nullable=False)
 
-    __table_args__ = (
-        UniqueConstraint(
-            "restaurant_id",
-            "name",
-            name="uq_menu_category_restaurant_name",
-        ),
-    )
-
     restaurant = relationship("Restaurant", back_populates="menu_categories")
