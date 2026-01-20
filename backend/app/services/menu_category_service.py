@@ -22,10 +22,12 @@ class MenuCategoryService:
     def create(
         self,
         db: Session,
-        restaurant_id: int | None,
+        restaurant_id: int,
         data: MenuCategoryCreate,
         user: User,
     ) -> MenuCategory:
+
+        # Global category → admin only
         if data.is_global:
             if not user.is_admin:
                 raise HTTPException(
@@ -41,15 +43,15 @@ class MenuCategoryService:
             name=data.name,
             description=data.description,
             display_order=data.display_order,
-            is_active=True,
+            is_active=data.is_active,
             is_global=data.is_global,
         )
 
         db.add(category)
         db.commit()
         db.refresh(category)
-        return category
 
+        return category
     # =========================================================
     # LIST
     # =========================================================

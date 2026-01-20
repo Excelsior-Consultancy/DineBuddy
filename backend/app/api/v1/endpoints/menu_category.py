@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import true
 
 from app.core.dependencies import (
     DBSession,
@@ -30,36 +31,21 @@ menu_category_service = MenuCategoryService()
     response_model=MenuCategoryRead,
     status_code=status.HTTP_201_CREATED,
 )
+@router.post(
+    "/",
+    response_model=MenuCategoryRead,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_menu_category(
     restaurant_id: int,
     payload: MenuCategoryCreate,
     db: DBSession,
     user: CurrentUser,
+    _: RestaurantAccess,
 ):
-    """
-    ADMIN:
-      - Can create global categories
-      - Can create restaurant categories
-
-    RESTAURANT_ADMIN:
-      - Can create categories only for assigned restaurants
-      - Cannot create global categories
-    """
-
-    # Global category → admin only
-    if payload.is_global:
-        if not user.is_admin:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only admin can create global categories",
-            )
-        target_restaurant_id = None
-    else:
-        target_restaurant_id = restaurant_id
-
     return menu_category_service.create(
         db=db,
-        restaurant_id=target_restaurant_id,
+        restaurant_id=restaurant_id,
         data=payload,
         user=user,
     )
