@@ -1,14 +1,33 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
-from app.models.user import User
+from app.models.user import User, UserRole
+from app.models.user_restaurant_map import UserRestaurant
 from app.models.restaurant import Restaurant
 from app.utils.slug_generator import generate_unique_slug
+from app.utils.validators import validate_business_hours_format
 
 
 class RestaurantService:
 
+    @staticmethod
+    def validate_business_hours(business_hours: dict | None) -> dict | None:
+        """
+        Validate business hours format (service-level validation).
+        Raises HTTPException for FastAPI error handling.
+        """
+        try:
+            return validate_business_hours_format(business_hours)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+
     def create(self, db: Session, payload):
+        # Validate business_hours format
+        validated_business_hours = self.validate_business_hours(payload.business_hours)
+        
         slug = generate_unique_slug(db, payload.name)
 
         restaurant = Restaurant(
@@ -20,6 +39,9 @@ class RestaurantService:
             logo_url=payload.logo_url,
             timezone=payload.timezone,
             currency=payload.currency,
+            business_hours=validated_business_hours,
+            description=payload.description,
+            cuisine_type=payload.cuisine_type,
             is_active=True
         )
 
@@ -84,7 +106,12 @@ class RestaurantService:
         if not restaurant:
             return None
 
-        data = payload.dict(exclude_unset=True)
+        data = payload.model_dump(exclude_unset=True)
+
+
+        # Validate business_hours if it's being updated
+        if "business_hours" in data:
+            data["business_hours"] = self.validate_business_hours(data["business_hours"])
 
         # Regenerate slug only if name changes
         if "name" in data:
@@ -119,3 +146,51 @@ class RestaurantService:
         db.delete(restaurant)
         db.commit()
         return True
+
+    def add_staff(
+        self,
+        db: Session,
+        restaurant_id: int,
+        staff_user_id: int,
+    ):
+        """Assign a staff user to a restaurant."""
+        restaurant = self.get_by_id(db, restaurant_id)
+        if not restaurant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Restaurant not found",
+            )
+
+        staff_user = db.query(User).filter(User.id == staff_user_id).first()
+        if not staff_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+
+        # Automatically update user's role to RESTAURANT_STAFF if not already
+        if staff_user.role != UserRole.RESTAURANT_STAFF:
+            staff_user.role = UserRole.RESTAURANT_STAFF
+
+        # Check existing mapping
+        existing = (
+            db.query(UserRestaurant)
+            .filter(
+                UserRestaurant.user_id == staff_user_id,
+                UserRestaurant.restaurant_id == restaurant_id,
+            )
+            .first()
+        )
+        if existing:
+            # If role was updated, commit that change
+            db.commit()
+            return restaurant  # Already assigned; idempotent
+
+        # Create mapping in user_restaurants_map table
+        mapping = UserRestaurant(
+            user_id=staff_user_id,
+            restaurant_id=restaurant_id,
+        )
+        db.add(mapping)
+        db.commit()  # Commit both role update (if any) and mapping together
+        return restaurant
