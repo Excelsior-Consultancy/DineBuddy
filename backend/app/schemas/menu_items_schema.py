@@ -1,12 +1,12 @@
 from typing import Optional
 from pydantic import BaseModel, Field
-
+from decimal import Decimal
 
 class MenuItemBase(BaseModel):
     category_id: int
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
-    price: float
+    price: Decimal = Field(..., ge=0, decimal_places=2)
     image_url: Optional[str] = None
     is_available: bool = True
     is_vegetarian: bool = False
@@ -21,7 +21,7 @@ class MenuItemCreate(MenuItemBase):
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
+    price: Decimal | None = Field(None, ge=0, decimal_places=2)
     image_url: Optional[str] = None
     is_available: Optional[bool] = None
     is_vegetarian: Optional[bool] = None
