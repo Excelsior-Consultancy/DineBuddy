@@ -1,12 +1,18 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, condecimal
+from decimal import Decimal
 
+PriceDecimal = condecimal(
+    ge=0,
+    max_digits=10,
+    decimal_places=2,
+)
 
 class MenuItemBase(BaseModel):
     category_id: int
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
-    price: float
+    price: PriceDecimal
     image_url: Optional[str] = None
     is_available: bool = True
     is_vegetarian: bool = False
@@ -20,13 +26,14 @@ class MenuItemCreate(MenuItemBase):
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
+    price: Optional[PriceDecimal] = None
     image_url: Optional[str] = None
     is_available: Optional[bool] = None
     is_vegetarian: Optional[bool] = None
     preparation_time_minutes: Optional[int] = None
     restaurant_id: Optional[int] = None
     category_id: Optional[int] = None
+
 
 class MenuItemRead(MenuItemBase):
     id: int
@@ -38,3 +45,4 @@ class MenuItemRead(MenuItemBase):
 
 class MenuItemAvailabilityUpdate(BaseModel):
     is_available: bool
+    model_config = {"from_attributes": True}
