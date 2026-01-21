@@ -1,8 +1,6 @@
 from typing import List, Optional, Annotated
-
 from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-
 from app.core.database import get_db
 from app.models.user import User
 from app.models.user_restaurant_map import UserRestaurant
