@@ -8,9 +8,12 @@ from fastapi import (
     BackgroundTasks,
 )
 from sqlalchemy.orm import Session
-from app.core.permission import require_roles
-from app.core.database import get_db
-from app.core.dependencies import CurrentUser, get_current_user, check_restaurant_access
+import json
+import csv
+from io import StringIO
+
+from app.core.database import get_db, SessionLocal
+from app.core.dependencies import get_current_user, check_restaurant_access
 from app.models.user import User, UserRole
 from app.schemas.menu_items_schema import (
     MenuItemCreate,
@@ -160,55 +163,71 @@ def list_menu_items(
 def create_menu_item(
     restaurant_id: int,
     data: MenuItemCreate,
-    current_user: CurrentUser,
     db: Session = Depends(get_db),
-    
+    current_user: User = Depends(get_current_user),
 ):
-    require_roles(
-        current_user,
-        (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN),
-    )
+    if current_user.role not in (
+        UserRole.ADMIN,
+        UserRole.RESTAURANT_ADMIN,
+    ):
+        raise HTTPException(403, "Not allowed")
 
     check_restaurant_access(restaurant_id, current_user, db)
+
     data.restaurant_id = restaurant_id
     return menu_items_service.create_menu_item(db, data)
 
-# ------------------------------------------------------------------
-# UPDATE MENU ITEM
-# ------------------------------------------------------------------
+
+@router.get("/{item_id}", response_model=MenuItemRead)
+def get_menu_item(
+    restaurant_id: int,
+    item_id: int,
+    db: Session = Depends(get_db),
+):
+    item = menu_items_service.get_menu_item(db, item_id)
+    if not item or item.restaurant_id != restaurant_id:
+        raise HTTPException(404, "Menu item not found")
+    return item
+
+
 @router.patch("/{item_id}", response_model=MenuItemRead)
 def update_menu_item(
     restaurant_id: int,
     item_id: int,
     data: MenuItemUpdate,
-    current_user: CurrentUser,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     item = menu_items_service.get_menu_item(db, item_id)
     if not item or item.restaurant_id != restaurant_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menu item not found")
+        raise HTTPException(404, "Menu item not found")
 
-    require_roles(current_user, (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN))
-    check_restaurant_access(restaurant_id, current_user, db)
+    if current_user.role not in (
+        UserRole.ADMIN,
+        UserRole.RESTAURANT_ADMIN,
+    ):
+        raise HTTPException(403, "Not allowed")
 
     check_restaurant_access(restaurant_id, current_user, db)
     return menu_items_service.update_menu_item(db, item, data)
 
 
-# DELETE MENU ITEM
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_menu_item(
     restaurant_id: int,
     item_id: int,
-    current_user: CurrentUser,
     db: Session = Depends(get_db),
-    
+    current_user: User = Depends(get_current_user),
 ):
     item = menu_items_service.get_menu_item(db, item_id)
     if not item or item.restaurant_id != restaurant_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menu item not found")
+        raise HTTPException(404, "Menu item not found")
 
-    require_roles(current_user, (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN))
+    if current_user.role not in (
+        UserRole.ADMIN,
+        UserRole.RESTAURANT_ADMIN,
+    ):
+        raise HTTPException(403, "Not allowed")
+
     check_restaurant_access(restaurant_id, current_user, db)
-
     menu_items_service.delete_menu_item(db, item)
