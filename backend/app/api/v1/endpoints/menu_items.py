@@ -32,34 +32,6 @@ router = APIRouter(
     tags=["Restaurant Menu Items"],
 )
 
-# =================================================
-# BACKGROUND TASK
-# =================================================
-def run_import_job(
-    job_id: int,
-    restaurant_id: int,
-    file_type: str,
-    payload,
-):
-    db = SessionLocal()
-    try:
-        if file_type == "json":
-            bulk_import_items_service.process_rows(
-                db=db,
-                job_id=job_id,
-                restaurant_id=restaurant_id,
-                rows=payload,
-            )
-        else:
-            rows = list(csv.DictReader(StringIO(payload)))
-            bulk_import_items_service.process_rows(
-                db=db,
-                job_id=job_id,
-                restaurant_id=restaurant_id,
-                rows=rows,
-            )
-    finally:
-        db.close()
 
 
 # =================================================
