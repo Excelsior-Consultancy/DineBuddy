@@ -1,7 +1,7 @@
 """menu items
 
 Revision ID: 0b26b4720191
-Revises: 76db1aa9fa96
+Revises: 0b26b4720191
 Create Date: 2026-01-08 14:42:44.068195
 
 """
