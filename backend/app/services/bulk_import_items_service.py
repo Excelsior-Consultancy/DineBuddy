@@ -1,8 +1,13 @@
 from typing import List, Dict, Any
-from fastapi import UploadFile
+import json
+import csv
+import io
+
+from fastapi import UploadFile, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.database import SessionLocal
 from app.models.menu_items import MenuItem
 from app.models.bulk_import_items import MenuItemImportJob
 
@@ -26,7 +31,7 @@ def create_job(db: Session, restaurant_id: int) -> MenuItemImportJob:
 
 
 # ------------------------------------------------
-# PROCESS ROWS (INTERNAL)
+# CORE PROCESSOR
 # ------------------------------------------------
 def process_rows(
     db: Session,
@@ -63,12 +68,17 @@ def process_rows(
                 ),
             )
             db.add(item)
-            db.flush()
+            db.flush()   # validates row before commit
             success += 1
+
         except (KeyError, ValueError, SQLAlchemyError) as e:
             db.rollback()
             failed += 1
-            errors.append({"row": index, "error": str(e)})
+            errors.append({
+                "row": index,
+                "error": str(e),
+                "data": row
+            })
 
     job.success_count = success
     job.failed_count = failed
@@ -78,37 +88,66 @@ def process_rows(
 
 
 # ------------------------------------------------
-# WRAPPERS FOR ENDPOINT
+# FILE PROCESSORS
 # ------------------------------------------------
-def process_csv(db: Session, job_id: int, restaurant_id: int, file: UploadFile):
-    import csv
-    import io
-
+def process_csv(
+    db: Session,
+    job_id: int,
+    restaurant_id: int,
+    file: UploadFile,
+):
     content = file.file.read().decode("utf-8")
     rows = list(csv.DictReader(io.StringIO(content)))
     process_rows(db, job_id, restaurant_id, rows)
 
 
-def process_json(db: Session, job_id: int, restaurant_id: int, items: List[Dict[str, Any]]):
+def process_json(
+    db: Session,
+    job_id: int,
+    restaurant_id: int,
+    items: List[Dict[str, Any]],
+):
     process_rows(db, job_id, restaurant_id, items)
 
 
 # ------------------------------------------------
-# GET JOB (INTERNAL)
+# GET JOB
 # ------------------------------------------------
 def get_job(db: Session, job_id: int) -> MenuItemImportJob | None:
     return db.query(MenuItemImportJob).filter(MenuItemImportJob.id == job_id).first()
 
 
-# ------------------------------------------------
-# GET JOB (API)
-# ------------------------------------------------
 def get_import_job(db: Session, job_id: int, restaurant_id: int) -> MenuItemImportJob:
     job = db.query(MenuItemImportJob).filter(
         MenuItemImportJob.id == job_id,
         MenuItemImportJob.restaurant_id == restaurant_id,
     ).first()
+
     if not job:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Import job not found")
+
     return job
+
+
+# ------------------------------------------------
+# BACKGROUND WORKER
+# ------------------------------------------------
+def _run_import_job(
+    job_id: int,
+    restaurant_id: int,
+    file_type: str,
+    payload,
+):
+    """
+    Runs in background with isolated DB session
+    """
+    db = SessionLocal()
+    try:
+        if file_type == "json":
+            process_rows(db, job_id, restaurant_id, payload)
+        else:  # CSV
+            rows = list(csv.DictReader(io.StringIO(payload)))
+            process_rows(db, job_id, restaurant_id, rows)
+    finally:
+        db.close()
