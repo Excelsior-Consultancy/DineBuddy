@@ -1,8 +1,8 @@
 """Fix menu category unique constraint and enforce partial uniqueness
 
-Revision ID: e6341ef68be7
-Revises: 76db1aa9fa96
-Create Date: 2026-01-11 22:50:24.039945
+Revision ID: 0b26b4720191
+Revises: 809d0eae8d7c
+Create Date: 2026-01-11 21:50:04.002843
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'e6341ef68be7'
-down_revision: Union[str, None] = '76db1aa9fa96'
+revision: str = '0b26b4720191'
+down_revision: Union[str, None] = '809d0eae8d7c'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
