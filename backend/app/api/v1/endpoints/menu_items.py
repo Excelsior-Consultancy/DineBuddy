@@ -30,37 +30,7 @@ router = APIRouter(
     tags=["Restaurant Menu Items"],
 )
 
-# =================================================
-# BACKGROUND TASK WRAPPER
-# =================================================
-def run_import_job(
-    job_id: int,
-    restaurant_id: int,
-    file_type: str,
-    payload,
-):
-    db = SessionLocal()
-    try:
-        if file_type == "json":
-            # JSON payload is already a list of dicts
-            bulk_import_items_service.process_rows(
-                db=db,
-                job_id=job_id,
-                restaurant_id=restaurant_id,
-                rows=payload,
-            )
-        else:  # CSV
-            import csv, io
-            # payload is the CSV content string
-            rows = list(csv.DictReader(io.StringIO(payload)))
-            bulk_import_items_service.process_rows(
-                db=db,
-                job_id=job_id,
-                restaurant_id=restaurant_id,
-                rows=rows,
-            )
-    finally:
-        db.close()
+
 
 # =================================================
 # IMPORT ROUTES (STATIC — MUST BE FIRST)
@@ -69,54 +39,26 @@ def run_import_job(
 @router.post("/import", status_code=status.HTTP_202_ACCEPTED)
 def import_menu_items(
     restaurant_id: int,
+    current_user: CurrentUser,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role not in (
-        UserRole.ADMIN,
-        UserRole.RESTAURANT_ADMIN,
-    ):
-        raise HTTPException(status_code=403, detail="Not allowed")
+    require_roles(
+        current_user,
+        (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN),
+    )
 
-    if current_user.role == UserRole.RESTAURANT_ADMIN:
-        check_restaurant_access(restaurant_id, current_user, db)
+    check_restaurant_access(restaurant_id, current_user, db)
 
     job = bulk_import_items_service.create_job(db, restaurant_id)
-    filename = file.filename.lower()
 
-    # ---------- CSV ----------
-    if filename.endswith(".csv"):
-        content = file.file.read().decode("utf-8")
-        csv.DictReader(StringIO(content))  # validate CSV
-
-        background_tasks.add_task(
-            run_import_job,
-            job.id,
-            restaurant_id,
-            "csv",
-            content,  # ✅ Pass the CSV content string, not the file
-        )
-
-    # ---------- JSON ----------
-    elif filename.endswith(".json"):
-        content = file.file.read().decode("utf-8")
-        items = json.loads(content)
-        if not isinstance(items, list):
-            raise HTTPException(400, "JSON must be an array")
-
-        background_tasks.add_task(
-            run_import_job,
-            job.id,
-            restaurant_id,
-            "json",
-            items,  # ✅ Already a list of dicts
-        )
-
-
-    else:
-        raise HTTPException(400, "Only CSV or JSON supported")
+    bulk_import_items_service.start_import(
+        job_id=job.id,
+        restaurant_id=restaurant_id,
+        file=file,
+        background_tasks=background_tasks,
+    )
 
     return {
         "job_id": job.id,
