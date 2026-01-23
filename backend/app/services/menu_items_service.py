@@ -4,7 +4,8 @@ from decimal import Decimal
 import csv
 import io
 import json
-
+from datetime import datetime, time
+from sqlalchemy import or_, and_
 from app.models.menu_items import MenuItem
 from app.schemas.menu_items_schema import MenuItemCreate, MenuItemUpdate
 from app.services.bulk_import_items_service import process_rows
@@ -54,11 +55,36 @@ def list_menu_items(
     db: Session,
     restaurant_id: int,
     category_id: int | None = None,
+    only_currently_available: bool = True,
 ):
-    query = db.query(MenuItem).filter(MenuItem.restaurant_id == restaurant_id)
+    query = db.query(MenuItem).filter(
+        MenuItem.restaurant_id == restaurant_id
+    )
+
     if category_id:
         query = query.filter(MenuItem.category_id == category_id)
+
+    if only_currently_available:
+        now = datetime.now().time()
+
+        query = query.filter(
+            MenuItem.is_available.is_(True),
+            or_(
+                # All-day items
+                and_(
+                    MenuItem.available_from.is_(None),
+                    MenuItem.available_to.is_(None),
+                ),
+                # Time-windowed items
+                and_(
+                    MenuItem.available_from <= now,
+                    MenuItem.available_to >= now,
+                ),
+            ),
+        )
+
     return query.order_by(MenuItem.name.asc()).all()
+
 
 
 # ------------------------------------------------
@@ -134,3 +160,5 @@ def _run_import_job(job_id: int, restaurant_id: int, file_type: str, payload):
             process_rows(db, job_id, restaurant_id, rows)
     finally:
         db.close()
+
+

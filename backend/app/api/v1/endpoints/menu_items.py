@@ -149,12 +149,14 @@ def get_import_job_status(
 def list_menu_items(
     restaurant_id: int,
     category_id: int | None = None,
+    available_now: bool = True,
     db: Session = Depends(get_db),
 ):
     return menu_items_service.list_menu_items(
         db=db,
         restaurant_id=restaurant_id,
         category_id=category_id,
+        only_currently_available=available_now,
     )
 
 
