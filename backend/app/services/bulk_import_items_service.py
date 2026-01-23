@@ -131,6 +131,46 @@ def get_import_job(db: Session, job_id: int, restaurant_id: int) -> MenuItemImpo
 
 
 # ------------------------------------------------
+# BACKGROUND TASK ENTRY
+# ------------------------------------------------
+def start_import(
+    job_id: int,
+    restaurant_id: int,
+    file: UploadFile,
+    background_tasks: BackgroundTasks,
+):
+    filename = file.filename.lower()
+
+    if filename.endswith(".csv"):
+        content = file.file.read().decode("utf-8")
+        background_tasks.add_task(
+            _run_import_job,
+            job_id,
+            restaurant_id,
+            "csv",
+            content,
+        )
+
+    elif filename.endswith(".json"):
+        items = json.loads(file.file.read().decode("utf-8"))
+        if not isinstance(items, list):
+            raise ValueError("JSON must be an array")
+
+        background_tasks.add_task(
+            _run_import_job,
+            job_id,
+            restaurant_id,
+            "json",
+            items,
+        )
+    else:
+        raise ValueError("Only CSV or JSON supported")
+
+
+
+
+
+# ------------------------------------------------
 # BACKGROUND WORKER
 # ------------------------------------------------
 def _run_import_job(
