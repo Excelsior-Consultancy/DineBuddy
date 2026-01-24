@@ -1,6 +1,9 @@
 from typing import Optional
 from pydantic import BaseModel, Field, condecimal
 from decimal import Decimal
+from pydantic import condecimal
+
+PriceDecimal = condecimal(max_digits=10, decimal_places=2)
 
 PriceDecimal = condecimal(
     ge=0,
@@ -12,7 +15,7 @@ class MenuItemBase(BaseModel):
     category_id: int
     name: str = Field(..., max_length=255)
     description: Optional[str] = None
-    price: PriceDecimal
+    price: PriceDecimal = Field(..., ge=0)
     image_url: Optional[str] = None
     is_available: bool = True
     is_vegetarian: bool = False
@@ -26,7 +29,7 @@ class MenuItemCreate(MenuItemBase):
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[PriceDecimal] = None
+    price: PriceDecimal | None = Field(None, ge=0)
     image_url: Optional[str] = None
     is_available: Optional[bool] = None
     is_vegetarian: Optional[bool] = None
