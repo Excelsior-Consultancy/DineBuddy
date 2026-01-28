@@ -40,8 +40,6 @@ class MenuItem(Base, TimestampMixin):
     is_available = Column(Boolean, nullable=False, server_default="true")
     is_vegetarian = Column(Boolean, nullable=False, server_default="false")
 
-    is_global = Column(Boolean, nullable=False, server_default="false")
-
     preparation_time_minutes = Column(Integer, nullable=True)
 
     __table_args__ = (
