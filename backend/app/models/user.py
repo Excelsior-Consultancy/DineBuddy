@@ -1,8 +1,7 @@
 """
 User model - Basic customer/admin authentication
 """
-from sqlalchemy import Column, String, Boolean, DateTime, Enum as SQLEnum
-from datetime import datetime
+from sqlalchemy import Column, String, Boolean, DateTime, Enum as SQLEnum   
 from sqlalchemy.orm import relationship
 import enum
 
@@ -37,7 +36,11 @@ class User(Base, IDMixin, TimestampMixin):
     phone = Column(String(20), nullable=True)
     
     # Role & Status
-    role = Column(SQLEnum(UserRole), nullable=False)
+    role = Column(
+    SQLEnum(UserRole, name="userrole"),
+    nullable=False,
+    index=True,
+)
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
     
