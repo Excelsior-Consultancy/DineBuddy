@@ -87,3 +87,4 @@ class RestaurantSettingsService:
         db.refresh(settings)
 
         return settings
+
