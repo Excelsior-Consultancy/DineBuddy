@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, condecimal
 from decimal import Decimal
 from pydantic import condecimal
 
@@ -36,5 +36,4 @@ class MenuItemRead(MenuItemBase):
     id: int
     restaurant_id: Optional[int]
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
