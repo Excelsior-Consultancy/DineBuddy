@@ -3,7 +3,7 @@ import json
 import csv
 import io
 
-from fastapi import UploadFile, BackgroundTasks
+from fastapi import HTTPException, UploadFile, BackgroundTasks,status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -154,7 +154,10 @@ def start_import(
     elif filename.endswith(".json"):
         items = json.loads(file.file.read().decode("utf-8"))
         if not isinstance(items, list):
-            raise ValueError("JSON must be an array")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="JSON must be an array"
+            )
 
         background_tasks.add_task(
             _run_import_job,

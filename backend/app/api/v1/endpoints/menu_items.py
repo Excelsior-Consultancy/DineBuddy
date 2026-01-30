@@ -31,6 +31,29 @@ router = APIRouter(
 )
 
 
+# ------------------------------------------------------------------
+# GET MENU ITEM BY ID (PUBLIC)
+# ------------------------------------------------------------------
+@router.get("/{item_id}", response_model=MenuItemRead)
+def get_menu_item(
+    restaurant_id: int,
+    item_id: int,
+    db: Session = Depends(get_db),
+):
+    item = menu_items_service.get_menu_item(
+        db,
+        item_id=item_id,
+        restaurant_id=restaurant_id,
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
+
+    return item
+
 
 # =================================================
 # IMPORT ROUTES (STATIC — MUST BE FIRST)
@@ -129,14 +152,21 @@ def update_menu_item(
     current_user: CurrentUser,
     db: Session = Depends(get_db),
 ):
-    item = menu_items_service.get_menu_item(db, item_id)
-    if not item or item.restaurant_id != restaurant_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menu item not found")
-
     require_roles(current_user, (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN))
     check_restaurant_access(restaurant_id, current_user, db)
 
-    check_restaurant_access(restaurant_id, current_user, db)
+    item = menu_items_service.get_menu_item(
+        db,
+        item_id=item_id,
+        restaurant_id=restaurant_id,
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
+
     return menu_items_service.update_menu_item(db, item, data)
 
 
@@ -147,13 +177,22 @@ def delete_menu_item(
     item_id: int,
     current_user: CurrentUser,
     db: Session = Depends(get_db),
-    
 ):
-    item = menu_items_service.get_menu_item(db, item_id)
-    if not item or item.restaurant_id != restaurant_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Menu item not found")
-
     require_roles(current_user, (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN))
     check_restaurant_access(restaurant_id, current_user, db)
 
+    item = menu_items_service.get_menu_item(
+        db,
+        item_id=item_id,
+        restaurant_id=restaurant_id,
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
+
     menu_items_service.delete_menu_item(db, item)
+
+
