@@ -4,6 +4,9 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.schemas.user_schema import UserCreate
 from app.core.security import hash_password
+from app.core.security import verify_password
+from app.core.jwt import create_access_token
+
 
 
 def create_user(db: Session, payload: UserCreate) -> User:
@@ -29,3 +32,46 @@ def create_user(db: Session, payload: UserCreate) -> User:
     db.refresh(user)
 
     return user
+
+
+def authenticate_user(
+    db: Session,
+    email: str,
+    password: str,
+) -> User:
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
+
+    if not verify_password(password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is inactive",
+        )
+
+    return user
+
+
+def login_user(db: Session, email: str, password: str) -> str:
+
+    user = authenticate_user(db, email, password)
+
+    token = create_access_token(
+        data={
+            "sub": str(user.id),
+            "role": user.role.value,
+        }
+    )
+
+    return token

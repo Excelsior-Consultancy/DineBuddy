@@ -5,31 +5,45 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
 from app.models.user_restaurant_map import UserRestaurant
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.core.jwt import decode_access_token
+
+security = HTTPBearer()
 
 # =========================================================
 # Temporary "current user" dependency for testing
 # =========================================================
 def get_current_user(
-    x_user_id: Optional[int] = Header(default=None, alias="X-User-Id"),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
-    """
-    Temporary auth dependency.
 
-    Reads user id from `X-User-Id` header and fetches user from DB.
-    """
-    if not x_user_id:
+    token = credentials.credentials
+
+    payload = decode_access_token(token)
+
+    if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="X-User-Id header is required",
+            detail="Invalid or expired token",
         )
 
-    user = db.query(User).filter(User.id == x_user_id).first()
+    user_id = payload.get("sub")
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token payload",
+        )
+
+    user = db.query(User).filter(User.id == int(user_id)).first()
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
+
     return user
 
 # =========================================================

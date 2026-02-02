@@ -29,3 +29,13 @@ class UserRead(BaseModel):
 
     class Config:
         from_attributes = True  # Pydantic v2 (better than orm_mode)
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
