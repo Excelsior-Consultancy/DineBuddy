@@ -37,10 +37,14 @@ class User(Base, IDMixin, TimestampMixin):
     
     # Role & Status
     role = Column(
-    SQLEnum(UserRole, name="userrole"),
-    nullable=False,
-    index=True,
-)
+        SQLEnum(
+            UserRole,
+            name="userrole",
+            values_callable=lambda x: [e.value for e in x]
+        ),
+        nullable=False,
+        index=True,
+    )
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
     
