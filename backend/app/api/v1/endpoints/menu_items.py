@@ -87,7 +87,7 @@ def import_menu_items(
         csv.DictReader(StringIO(content))  # validate CSV
 
         background_tasks.add_task(
-            run_import_job,
+            menu_items_service.run_import_job,
             job.id,
             restaurant_id,
             "csv",
@@ -102,7 +102,7 @@ def import_menu_items(
             raise HTTPException(400, "JSON must be an array")
 
         background_tasks.add_task(
-            run_import_job,
+            menu_items_service.run_import_job,
             job.id,
             restaurant_id,
             "json",
