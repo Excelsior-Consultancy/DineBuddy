@@ -12,6 +12,7 @@ from app.services.bulk_import_items_service import process_rows
 from app.core.database import SessionLocal
 
 
+
 # ------------------------------------------------
 # CREATE
 # ------------------------------------------------
@@ -26,8 +27,19 @@ def create_menu_item(db: Session, data: MenuItemCreate) -> MenuItem:
 # ------------------------------------------------
 # GET BY ID (GLOBAL)
 # ------------------------------------------------
-def get_menu_item(db: Session, item_id: int) -> MenuItem | None:
-    return db.query(MenuItem).filter(MenuItem.id == item_id).first()
+def get_menu_item(
+    db: Session,
+    item_id: int,
+    restaurant_id: int,
+) -> MenuItem | None:
+    return (
+        db.query(MenuItem)
+        .filter(
+            MenuItem.id == item_id,
+            MenuItem.restaurant_id == restaurant_id
+        )
+        .first()
+    )
 
 
 # ------------------------------------------------

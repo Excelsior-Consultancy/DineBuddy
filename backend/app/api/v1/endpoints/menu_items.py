@@ -32,42 +32,36 @@ router = APIRouter(
     tags=["Restaurant Menu Items"],
 )
 
-# =================================================
-# BACKGROUND TASK WRAPPER
-# =================================================
-def run_import_job(
-    job_id: int,
+
+# ------------------------------------------------------------------
+# GET MENU ITEM BY ID (PUBLIC)
+# ------------------------------------------------------------------
+@router.get("/{item_id}", response_model=MenuItemRead)
+def get_menu_item(
     restaurant_id: int,
-    file_type: str,
-    payload,
+    item_id: int,
+    db: Session = Depends(get_db),
 ):
-    db = SessionLocal()
-    try:
-        if file_type == "json":
-            # JSON payload is already a list of dicts
-            bulk_import_items_service.process_rows(
-                db=db,
-                job_id=job_id,
-                restaurant_id=restaurant_id,
-                rows=payload,
-            )
-        else:  # CSV
-            import csv, io
-            # payload is the CSV content string
-            rows = list(csv.DictReader(io.StringIO(payload)))
-            bulk_import_items_service.process_rows(
-                db=db,
-                job_id=job_id,
-                restaurant_id=restaurant_id,
-                rows=rows,
-            )
-    finally:
-        db.close()
+    item = menu_items_service.get_menu_item(
+        db,
+        item_id=item_id,
+        restaurant_id=restaurant_id,
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
+
+    return item
+
 
 # =================================================
 # IMPORT ROUTES (STATIC)
 # =================================================
-@router.post("/import", status_code=202)
+
+@router.post("/import", status_code=status.HTTP_202_ACCEPTED)
 def import_menu_items(
     restaurant_id: int,
     current_user: CurrentUser,
@@ -173,7 +167,6 @@ def create_menu_item(
     )
 
     check_restaurant_access(restaurant_id, current_user, db)
-
     data.restaurant_id = restaurant_id
     return menu_items_service.create_menu_item(db, data)
 
