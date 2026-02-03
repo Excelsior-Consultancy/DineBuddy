@@ -4,6 +4,7 @@ from decimal import Decimal
 from datetime import time
 from pydantic import condecimal
 
+PriceDecimal = condecimal(max_digits=10, decimal_places=2)
 
 class MenuItemBase(BaseModel):
     category_id: int

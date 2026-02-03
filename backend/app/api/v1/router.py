@@ -1,9 +1,5 @@
 from fastapi import APIRouter
-<<<<<<< HEAD
 from app.api.v1.endpoints import health, restaurant, user_restaurant, menu_category, menu_items, menu_item_variant,user, auth
-=======
-from app.api.v1.endpoints import health, restaurant, user_restaurant, menu_category, menu_items, menu_item_variant
->>>>>>> Quick-availability-toggle
 
 api_router = APIRouter()
 
