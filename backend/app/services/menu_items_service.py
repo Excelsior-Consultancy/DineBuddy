@@ -87,10 +87,23 @@ def list_menu_items(
                     MenuItem.available_from.is_(None),
                     MenuItem.available_to.is_(None),
                 ),
-                # Time-windowed items
+                # Normal time-windowed items (e.g., 10:00 - 14:00)
                 and_(
+                    MenuItem.available_from.isnot(None),
+                    MenuItem.available_to.isnot(None),
+                    MenuItem.available_from <= MenuItem.available_to,
                     MenuItem.available_from <= now,
                     MenuItem.available_to >= now,
+                ),
+                # Overnight time-windowed items (e.g., 22:00 - 02:00)
+                and_(
+                    MenuItem.available_from.isnot(None),
+                    MenuItem.available_to.isnot(None),
+                    MenuItem.available_from > MenuItem.available_to,
+                    or_(
+                        MenuItem.available_from <= now,  # After start time (e.g., 23:00 >= 22:00)
+                        MenuItem.available_to >= now,    # Before end time (e.g., 01:00 <= 02:00)
+                    ),
                 ),
             ),
         )

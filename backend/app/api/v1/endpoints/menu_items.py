@@ -192,6 +192,12 @@ def update_menu_item(
         restaurant_id=restaurant_id,
     )
 
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
+
     return menu_items_service.update_menu_item(db, item, data)
 
 
@@ -214,6 +220,12 @@ def delete_menu_item(
         item_id=item_id,
         restaurant_id=restaurant_id,
     )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
 
     menu_items_service.delete_menu_item(db, item)
 
@@ -241,6 +253,12 @@ def update_menu_item_availability(
         item_id=item_id,
         restaurant_id=restaurant_id,
     )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
 
     menu_items_service.update_menu_item_availability(
         db=db,
