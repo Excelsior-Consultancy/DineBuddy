@@ -5,12 +5,6 @@ from datetime import time
 from pydantic import condecimal
 
 
-PriceDecimal = condecimal(
-    ge=0,
-    max_digits=10,
-    decimal_places=2,
-)
-
 class MenuItemBase(BaseModel):
     category_id: int
     name: str = Field(..., max_length=255)

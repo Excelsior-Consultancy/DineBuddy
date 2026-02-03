@@ -1,11 +1,11 @@
 from typing import List
 
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import true
 
 from app.core.dependencies import (
     DBSession,
     CurrentUser,
-    AdminUser,
     RestaurantAccess,
 )
 from app.schemas.menu_category_schema import (
@@ -13,17 +13,24 @@ from app.schemas.menu_category_schema import (
     MenuCategoryRead,
     MenuCategoryUpdate,
 )
-from app.services import menu_category_service
+from app.services.menu_category_service import MenuCategoryService
 
 router = APIRouter(
     prefix="/restaurants/{restaurant_id}/menu-categories",
     tags=["Menu Categories"],
 )
 
+menu_category_service = MenuCategoryService()
+
 
 # =========================================================
 # CREATE MENU CATEGORY
 # =========================================================
+@router.post(
+    "/",
+    response_model=MenuCategoryRead,
+    status_code=status.HTTP_201_CREATED,
+)
 @router.post(
     "/",
     response_model=MenuCategoryRead,
@@ -36,28 +43,7 @@ def create_menu_category(
     user: CurrentUser,
     _: RestaurantAccess,
 ):
-    """
-    ADMIN:
-      - Can create global categories
-      - Can create restaurant categories
-
-    RESTAURANT_ADMIN:
-      - Can create categories only for assigned restaurants
-      - Cannot create global categories
-    """
-
-    # Global category → admin only
-    if payload.is_global:
-        if not user.is_admin:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only admin can create global categories",
-            )
-        target_restaurant_id = None
-    else:
-        target_restaurant_id = restaurant_id
-
-    return menu_category_service.create_category(
+    return menu_category_service.create(
         db=db,
         restaurant_id=restaurant_id,
         data=payload,
@@ -83,7 +69,7 @@ def list_menu_categories(
       - See global categories
     """
 
-    return menu_category_service.list_categories(
+    return menu_category_service.list(
         db=db,
         restaurant_id=restaurant_id,
     )
@@ -113,7 +99,7 @@ def update_menu_category(
       - Cannot update global categories
     """
 
-    return menu_category_service.update_category(
+    return menu_category_service.update(
         db=db,
         category_id=category_id,
         data=payload,
@@ -144,7 +130,7 @@ def delete_menu_category(
       - Cannot delete global categories
     """
 
-    menu_category_service.delete_category(
+    menu_category_service.delete(
         db=db,
         category_id=category_id,
         user=user,
