@@ -9,6 +9,8 @@ from sqlalchemy import (
     Index,
 )
 from app.db.base import Base, TimestampMixin
+from sqlalchemy import Time
+from datetime import time
 
 
 class MenuItem(Base, TimestampMixin):
@@ -39,10 +41,12 @@ class MenuItem(Base, TimestampMixin):
 
     is_available = Column(Boolean, nullable=False, server_default="true")
     is_vegetarian = Column(Boolean, nullable=False, server_default="false")
-
+    available_from = Column(Time, nullable=True)  # e.g. 07:00
+    available_to = Column(Time, nullable=True)
     preparation_time_minutes = Column(Integer, nullable=True)
 
     __table_args__ = (
         Index("ix_menu_items_restaurant_category", "restaurant_id", "category_id"),
         Index("ix_menu_items_availability", "is_available"),
+        Index("ix_menu_items_time_window", "available_from", "available_to"),
     )
