@@ -185,8 +185,7 @@ def update_menu_item(
     )
 
     check_restaurant_access(restaurant_id, current_user, db)
-
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,
@@ -215,7 +214,7 @@ def delete_menu_item(
 
     check_restaurant_access(restaurant_id, current_user, db)
 
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,
@@ -248,7 +247,7 @@ def update_menu_item_availability(
 
     check_restaurant_access(restaurant_id, current_user, db)
 
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,
@@ -292,7 +291,7 @@ def update_menu_item_timings(
 
     check_restaurant_access(restaurant_id, current_user, db)
 
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,

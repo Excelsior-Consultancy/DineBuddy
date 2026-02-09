@@ -42,16 +42,6 @@ def get_menu_item(
     )
 
 
-def get_menu_item_for_restaurant(
-    db: Session,
-    item_id: int,
-    restaurant_id: int,
-) -> MenuItem | None:
-    """Get menu item by ID for a specific restaurant"""
-    return get_menu_item(db, item_id, restaurant_id)
-
-
-
 # ------------------------------------------------
 # LIST (Restaurant Scoped)
 # ------------------------------------------------
