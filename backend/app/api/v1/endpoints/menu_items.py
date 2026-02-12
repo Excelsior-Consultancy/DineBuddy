@@ -21,6 +21,7 @@ from app.schemas.menu_items_schema import (
     MenuItemRead,
     MenuItemUpdate,
     MenuItemAvailabilityUpdate,
+    MenuItemTimingUpdate,
 )
 from app.services import (
     menu_items_service,
@@ -69,13 +70,12 @@ def import_menu_items(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
-    if current_user.role not in (
-        UserRole.ADMIN,
-        UserRole.RESTAURANT_ADMIN,
-    ):
-        raise HTTPException(status_code=403, detail="Not allowed")
+    require_roles(
+        current_user,
+        (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN),
+    )
 
-    if current_user.role == UserRole.RESTAURANT_ADMIN:
+    if current_user.is_restaurant_admin:
         check_restaurant_access(restaurant_id, current_user, db)
 
     job = bulk_import_items_service.create_job(db, restaurant_id)
@@ -87,7 +87,7 @@ def import_menu_items(
         csv.DictReader(StringIO(content))  # validate CSV
 
         background_tasks.add_task(
-            menu_items_service.run_import_job,
+            menu_items_service._run_import_job,
             job.id,
             restaurant_id,
             "csv",
@@ -185,8 +185,7 @@ def update_menu_item(
     )
 
     check_restaurant_access(restaurant_id, current_user, db)
-
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,
@@ -215,7 +214,7 @@ def delete_menu_item(
 
     check_restaurant_access(restaurant_id, current_user, db)
 
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,
@@ -248,7 +247,7 @@ def update_menu_item_availability(
 
     check_restaurant_access(restaurant_id, current_user, db)
 
-    item = menu_items_service.get_menu_item_for_restaurant(
+    item = menu_items_service.get_menu_item(
         db=db,
         item_id=item_id,
         restaurant_id=restaurant_id,
@@ -266,19 +265,54 @@ def update_menu_item_availability(
         is_available=data.is_available,
     )
 
-    # Real-time event (placeholder)
-    from app.core.events import notify_customers
-    notify_customers(
+    
+    return {
+        "item_id": item.id,
+        "is_available": item.is_available,
+        "status": "updated",
+    }
+
+
+# =================================================
+# TIMING
+# =================================================
+@router.patch("/{item_id}/timings", response_model=dict)
+def update_menu_item_timings(
+    restaurant_id: int,
+    item_id: int,
+    data: MenuItemTimingUpdate,
+    current_user: CurrentUser,
+    db: Session = Depends(get_db),
+):
+    require_roles(
+        current_user,
+        (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN),
+    )
+
+    check_restaurant_access(restaurant_id, current_user, db)
+
+    item = menu_items_service.get_menu_item(
+        db=db,
+        item_id=item_id,
         restaurant_id=restaurant_id,
-        event="menu_item_availability_updated",
-        payload={
-            "item_id": item.id,
-            "is_available": item.is_available,
-        },
+    )
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Menu item not found"
+        )
+
+    menu_items_service.update_menu_item_timing(
+        db=db,
+        item=item,
+        available_from=data.available_from,
+        available_to=data.available_to,
     )
 
     return {
         "item_id": item.id,
-        "is_available": item.is_available,
+        "available_from": str(item.available_from) if item.available_from else None,
+        "available_to": str(item.available_to) if item.available_to else None,
         "status": "updated",
     }

@@ -43,24 +43,6 @@ def get_menu_item(
 
 
 # ------------------------------------------------
-# GET BY ID (RESTAURANT SCOPED)
-# ------------------------------------------------
-def get_menu_item_for_restaurant(
-    db: Session,
-    restaurant_id: int,
-    item_id: int,
-) -> MenuItem | None:
-    return (
-        db.query(MenuItem)
-        .filter(
-            MenuItem.id == item_id,
-            MenuItem.restaurant_id == restaurant_id,
-        )
-        .first()
-    )
-
-
-# ------------------------------------------------
 # LIST (Restaurant Scoped)
 # ------------------------------------------------
 def list_menu_items(
@@ -80,29 +62,32 @@ def list_menu_items(
         now = datetime.now().time()
 
         query = query.filter(
-            MenuItem.is_available.is_(True),
-            or_(
-                # All-day items
-                and_(
-                    MenuItem.available_from.is_(None),
-                    MenuItem.available_to.is_(None),
-                ),
-                # Normal time-windowed items (e.g., 10:00 - 14:00)
-                and_(
-                    MenuItem.available_from.isnot(None),
-                    MenuItem.available_to.isnot(None),
-                    MenuItem.available_from <= MenuItem.available_to,
-                    MenuItem.available_from <= now,
-                    MenuItem.available_to >= now,
-                ),
-                # Overnight time-windowed items (e.g., 22:00 - 02:00)
-                and_(
-                    MenuItem.available_from.isnot(None),
-                    MenuItem.available_to.isnot(None),
-                    MenuItem.available_from > MenuItem.available_to,
-                    or_(
-                        MenuItem.available_from <= now,  # After start time (e.g., 23:00 >= 22:00)
-                        MenuItem.available_to >= now,    # Before end time (e.g., 01:00 <= 02:00)
+            and_(
+                MenuItem.is_available.is_(True),
+                # AND must satisfy time window conditions
+                or_(
+                    # All-day items (no time restrictions)
+                    and_(
+                        MenuItem.available_from.is_(None),
+                        MenuItem.available_to.is_(None),
+                    ),
+                    # Normal time-windowed items (e.g., 10:00 - 14:00)
+                    and_(
+                        MenuItem.available_from.isnot(None),
+                        MenuItem.available_to.isnot(None),
+                        MenuItem.available_from <= MenuItem.available_to,
+                        MenuItem.available_from <= now,
+                        MenuItem.available_to >= now,
+                    ),
+                    # Overnight time-windowed items (e.g., 22:00 - 02:00)
+                    and_(
+                        MenuItem.available_from.isnot(None),
+                        MenuItem.available_to.isnot(None),
+                        MenuItem.available_from > MenuItem.available_to,
+                        or_(
+                            MenuItem.available_from <= now,  # After start time (e.g., 23:00 >= 22:00)
+                            MenuItem.available_to >= now,    # Before end time (e.g., 01:00 <= 02:00)
+                        ),
                     ),
                 ),
             ),
@@ -144,6 +129,22 @@ def update_menu_item_availability(
     is_available: bool,
 ) -> MenuItem:
     item.is_available = is_available
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+# ------------------------------------------------
+# TIMING UPDATE
+# ------------------------------------------------
+def update_menu_item_timing(
+    db: Session,
+    item: MenuItem,
+    available_from: time | None,
+    available_to: time | None,
+) -> MenuItem:
+    item.available_from = available_from
+    item.available_to = available_to
     db.commit()
     db.refresh(item)
     return item
