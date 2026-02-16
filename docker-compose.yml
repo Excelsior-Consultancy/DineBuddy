@@ -20,6 +20,13 @@ services:
       timeout: 5s
       retries: 5
 
+# Redis (For OTP & Caching)
+  redis:
+    image: redis:7-alpine
+    container_name: dinebuddy-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
   # FastAPI Backend
   backend:
     build:
@@ -41,6 +48,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started  
     command: >
       sh -c "
         echo '⏳ Waiting for database...' &&
