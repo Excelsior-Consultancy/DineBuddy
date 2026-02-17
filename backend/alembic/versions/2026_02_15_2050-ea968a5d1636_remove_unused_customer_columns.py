@@ -45,5 +45,5 @@ def downgrade():
 
     op.add_column(
         "customers",
-        sa.Column("is_phone_verified", sa.Boolean(), nullable=False)
+        sa.Column('is_phone_verified', sa.Boolean(), nullable=False)
     )

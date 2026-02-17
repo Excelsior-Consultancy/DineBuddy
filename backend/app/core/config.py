@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "dinebuddy"
     DATABASE_URL: str = ""
+
+        # Redis
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_URL: Optional[str] = None
+
     
     # CORS - can be comma-separated string or list
     CORS_ORIGINS: Union[List[str], str] = "http://localhost:3000,http://localhost:8000"

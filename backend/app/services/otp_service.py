@@ -41,7 +41,7 @@ def request_otp(phone: str):
 
     return {
         "message": "OTP sent",
-        "otp": otp   # 👈 testing ke liye
+        "otp": otp   # 👈 For test
     }
 
 # -------------------------------
@@ -55,7 +55,8 @@ def verify_otp(db, phone: str, otp: str):
     saved_otp = redis_client.get(otp_key)
 
     if saved_otp:
-        saved_otp = saved_otp.decode()
+        saved_otp = saved_otp
+        
 
 
     # OTP expired / not found
