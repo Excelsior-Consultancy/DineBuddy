@@ -92,6 +92,42 @@ make db-upgrade      # Apply migrations
 
 ---
 
+## 🧪 Testing
+
+Tests use **pytest** and run the same way for everyone (you and your colleague) via **Make** or **Docker**.
+
+### Run tests on any system (recommended)
+
+From the **repo root**, with Docker (no local Python or `pip install` needed):
+
+```bash
+make up              # Start DB + backend (once)
+make test            # Run all tests inside the backend container
+make test-unit       # Unit tests only
+make test-integration # Integration tests only
+```
+
+The backend container uses **Python 3.11**, so `psycopg2-binary` and everything else install cleanly. This works on any machine that has Docker and Make.
+
+### Run tests locally (optional)
+
+If you prefer to run pytest on your host (e.g. in your IDE):
+
+1. Use **Python 3.11 or 3.12** so `psycopg2-binary` has pre-built wheels (avoids `pg_config` issues). The repo has a `.python-version` file (3.12) for **pyenv** users.
+2. From repo root: `make test-local` (creates `backend/.venv` if needed, installs deps, runs pytest).
+3. Or manually:
+   ```bash
+   cd backend
+   python3.12 -m venv .venv   # or python3.11
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   pytest tests/ -v
+   ```
+
+**Backend** supports Python **3.11–3.13** (`pyproject.toml`: `requires-python = ">=3.11,<3.14"`). Python 3.14+ may require installing `libpq` for `psycopg2-binary`; using 3.11/3.12 avoids that.
+
+---
+
 ## 🔧 Add Your First Feature
 
 Quick example: Add a Restaurant model
@@ -291,6 +327,21 @@ docker-compose down -v
 docker-compose up -d
 docker-compose exec backend alembic upgrade head
 ```
+
+### pip install fails on `psycopg2-binary` (pg_config not found)
+If pip is building `psycopg2-binary` from source and fails with **"pg_config executable not found"**, install the PostgreSQL client so the build can find headers and libs:
+
+```bash
+# macOS (Homebrew)
+brew install libpq
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"   # Apple Silicon
+# export PATH="/usr/local/opt/libpq/bin:$PATH"    # Intel
+
+# Then retry
+pip install -r requirements.txt
+```
+
+To make the PATH change permanent, add the `export` line to your `~/.zshrc` or `~/.bash_profile`. Alternatively, install a pre-built wheel from PyPI first: `pip install psycopg2-binary` (then install the rest of your requirements).
 
 ---
 
