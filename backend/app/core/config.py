@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "dinebuddy"
     DATABASE_URL: str = ""
+
+        # Redis
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_URL: Optional[str] = None
+
     
     # CORS - can be comma-separated string or list
     CORS_ORIGINS: Union[List[str], str] = "http://localhost:3000,http://localhost:8000"
@@ -36,9 +43,9 @@ class Settings(BaseSettings):
         return v
     
     # JWT / Security (for future use)
-    SECRET_KEY: str = "your-secret-key-change-in-production"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
     # AWS (for future deployment)

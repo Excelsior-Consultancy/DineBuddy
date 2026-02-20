@@ -52,7 +52,6 @@ def downgrade() -> None:
             'RESTAURANT_STAFF'
         )
     """)
-
     op.execute("""
         ALTER TABLE users
         ALTER COLUMN role TYPE userrole_old
