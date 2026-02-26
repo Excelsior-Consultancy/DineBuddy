@@ -27,7 +27,7 @@ def list_variants(
     item_id: int,
     db: Session = Depends(get_db),
 ):
-    item = menu_items_service.get_menu_item(db, item_id)
+    item = menu_items_service.get_menu_item(db,item_id,restaurant_id,)
     if not item or item.restaurant_id != restaurant_id:
         raise HTTPException(status_code=404, detail="Menu item not found")
 
@@ -44,10 +44,11 @@ def create_variant(
     current_user: CurrentUser,
     db: Session = Depends(get_db),
 ):
+    print (restaurant_id,item_id)
     require_roles(current_user, (UserRole.ADMIN, UserRole.RESTAURANT_ADMIN))
     check_restaurant_access(restaurant_id, current_user, db)
 
-    item = menu_items_service.get_menu_item(db, item_id)
+    item = menu_items_service.get_menu_item(db,item_id, restaurant_id)
     if not item or item.restaurant_id != restaurant_id:
         raise HTTPException(status_code=404, detail="Menu item not found")
 

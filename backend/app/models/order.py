@@ -19,18 +19,32 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
+    restaurant_id = Column(
+        Integer,
+        ForeignKey("restaurants.id"),
+        nullable=False
+    )
 
     # NULL = walk-in / guest / anonymous
-    customer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    customer_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True
+    )
 
     table_number = Column(String(20), nullable=True)
 
     status = Column(
-        Enum(OrderStatus),
-        default=OrderStatus.PENDING,
-        nullable=False
-    )
+    Enum(
+        OrderStatus,
+        name="orderstatus",          # Must match DB enum
+        native_enum=True,
+        values_callable=lambda x: [e.value for e in x],  # 👈 USE VALUES
+        validate_strings=True,
+    ),
+    default=OrderStatus.PENDING,
+    nullable=False,
+)
 
     total_amount = Column(Numeric(7, 2), nullable=False)
     tax_amount = Column(Numeric(7, 2), default=0, nullable=False)
@@ -38,9 +52,16 @@ class Order(Base):
     notes = Column(String(500), nullable=True)
 
     # Staff/Admin who created the order
-    created_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_by_user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True
+    )
 
-    # Relations (optional but recommended)
+    # ==========================
+    # Relationships
+    # ==========================
+
     restaurant = relationship("Restaurant")
 
     customer = relationship(
@@ -53,9 +74,9 @@ class Order(Base):
         foreign_keys=[created_by_user_id]
     )
 
-
-items = relationship(
-    "OrderItem",
-    back_populates="order",
-    cascade="all, delete-orphan"
-)
+    # ✅ FIX: Move inside class
+    items = relationship(
+        "OrderItem",
+        back_populates="order",
+        cascade="all, delete-orphan"
+    )
