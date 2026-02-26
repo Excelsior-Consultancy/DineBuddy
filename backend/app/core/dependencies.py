@@ -8,6 +8,7 @@ from app.models.user_restaurant_map import UserRestaurant
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.jwt import decode_access_token
 from app.models.customer import Customer
+from app.models.restaurant import Restaurant
 
 security = HTTPBearer()
 
@@ -146,6 +147,25 @@ def check_restaurant_access(
             detail="Access denied to this restaurant",
         )
 
+
+def get_restaurant_by_id(
+    restaurant_id: int,
+    db: Session = Depends(get_db),
+) -> Restaurant:
+
+    restaurant = (
+        db.query(Restaurant)
+        .filter(Restaurant.id == restaurant_id)
+        .first()
+    )
+
+    if not restaurant:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Restaurant not found",
+        )
+
+    return restaurant
 # =========================================================
 # Dependency aliases for clean routes
 # =========================================================
@@ -155,3 +175,4 @@ AdminUser = Annotated[User, Depends(require_admin)]
 RestaurantAdminRestaurantIds = Annotated[List[int], Depends(require_restaurant_admin)]
 RestaurantAccess = Annotated[None, Depends(check_restaurant_access)]
 CurrentCustomer = Annotated[Customer, Depends(get_current_customer)]
+CurrentRestaurant = Annotated[Restaurant,Depends(get_restaurant_by_id)]
